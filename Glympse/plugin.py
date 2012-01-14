@@ -36,15 +36,30 @@ class Glympse(callbacks.Plugin):
                 msgstr = self.rfile.read()
                 message = email.message_from_string(msgstr)
                 msg_id = message.get('Message-ID', 'Unknown')
-
                 whose = message['Subject'].split()[1]
-                for word in message.get_payload(decode=True).split():
-                    if word.startswith('http:'):
-                        url = word
-                        break
+
+                # The message may have multiple parts
+                for part in message.walk():
+                    if part.is_multipart():
+                        continue
+
+                    # The URL will hopefully be in first text/plain part
+                    if part.get_content_type().lower() != 'text/plain':
+                        continue
+
+                    payload = part.get_payload(decode=True)
+                    decoded = payload.decode(part.get_content_charset())
+
+                    for word in decoded.split():
+                        if word.startswith('http:'):
+                            url = str(word)
+                            break
+                    else:
+                        raise RuntimeError, 'No URL found'
+                    break
+
                 else:
-                    self.log.error('Glympse: No URL found in message body, id: %s', msg_id)
-                    raise RuntimeError, 'No URL found'
+                    raise RuntimeError, 'The message has no text/plain part'
 
                 reply = "{0} location: {1}".format(whose, url)
             except:
