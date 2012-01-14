@@ -33,7 +33,6 @@ class Glympse(callbacks.Plugin):
                 self.log.info('Glympse: network connect from: %s', self.client_address)
 
             try:
-                raise RuntimeError, "Foo, bar"
                 msgstr = self.rfile.read()
                 message = email.message_from_string(msgstr)
                 msg_id = message.get('Message-ID', 'Unknown')
@@ -47,7 +46,7 @@ class Glympse(callbacks.Plugin):
                     self.log.error('Glympse: No URL found in message body, id: %s', msg_id)
                     raise RuntimeError, 'No URL found'
 
-                reply = "{} location: {}".format(whose, url)
+                reply = "{0} location: {1}".format(whose, url)
             except:
                 self.log.error('Glympse: exception %s: %s', sys.exc_type,
                         sys.exc_value)
