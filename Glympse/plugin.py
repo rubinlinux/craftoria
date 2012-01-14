@@ -5,6 +5,7 @@
 ###
 
 import os
+import sys
 import email
 import threading
 import SocketServer
@@ -32,6 +33,7 @@ class Glympse(callbacks.Plugin):
                 self.log.info('Glympse: network connect from: %s', self.client_address)
 
             try:
+                raise RuntimeError, "Foo, bar"
                 msgstr = self.rfile.read()
                 message = email.message_from_string(msgstr)
                 msg_id = message.get('Message-ID', 'Unknown')
@@ -47,11 +49,13 @@ class Glympse(callbacks.Plugin):
 
                 reply = "{} location: {}".format(whose, url)
             except:
+                self.log.error('Glympse: exception %s: %s', sys.exc_type,
+                        sys.exc_value)
                 reply = "Something wrong happened when parsing glympse message, see log for details"
 
             # Announce the location to all configured channels
             for channel in self.irc.state.channels.keys():
-                if conf.supybot.plugins.Glympse.announce.get(channel):
+                if conf.supybot.plugins.Glympse.announce.get(channel)():
                     self.irc.queueMsg(ircmsgs.privmsg(channel, reply))
 
     def __init__(self, irc):
