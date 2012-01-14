@@ -1,7 +1,6 @@
 ###
-# Copyright (c) 2011, Tomas Sikora
-# All rights reserved.
-#
+# Copyright (c) 2012, b42
+# Published under WTFPL.
 #
 ###
 
