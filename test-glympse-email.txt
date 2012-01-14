@@ -1,0 +1,40 @@
+Return-Path: <unknown>
+Delivered-To: unknown
+Received: from pop3.example.cz (90.183.38.65) by nyx with POP3-SSL; 04 Apr
+  2011 11:20:02 -0000
+Received: from mail23.elasticemail.org (mail23.elasticemail.org [178.32.180.23])
+	by gmmr8.example.cz (Postfix) with SMTP id 9F4C4E01772A
+	for <foo@bar.net>; Mon,  4 Apr 2011 13:19:53 +0200 (CEST)
+Received: from gmma5 (localhost.localdomain [127.0.0.1])
+	by gmma5 (esets_smtp); Mon, 04 Apr 2011 13:19:53 +0200
+X-Virus-Scanner: This message was checked by ESET Mail Security
+	for Linux/BSD. For more information on ESET Mail Security,
+	please, visit our website: http://www.eset.com/.
+X-CentrumSpamScore: -4
+X-SpamDetected: 1
+Received: from mail23.elasticemail.org ([178.32.180.23]) by gmma5 (gigamail-antispam); Mon, 04 Apr 2011 13:19:53 +0200
+DKIM-Signature: v=1; a=rsa-sha1; bh=T/vfKa0UIZHIgRe6n1iQ0Da1rI8=;
+ c=relaxed/relaxed; d=glympsemailer.com; s=api;
+ h=DomainKey-Signature:MIME-Version:From:To:List-Unsubscribe:Subject:Date:Reply-To:Message-ID:Content-Type:Content-Transfer-Encoding;
+ b=PXvMmv8f4IGtOvbU3egISZe2gL1T8dWLw/n+GYghJXLe/PR4Aq9JhzhPDvzJe3sS1RPvQRnwFZia2h7t/vP+OWqro6OHPl4YaeXSM18HEMy62JldnVRk7T8/9B2kI1OI8Zfj6J+bVD4Cp/DK/KrmI8FK9ZKfhXjouw5w/8id+xE=
+DomainKey-Signature: q=dns; a=rsa-sha1; c=simple;
+ d=glympsemailer.com; s=api;
+ h=MIME-Version:X-Mailer:From:To:X-Priority:List-Unsubscribe:Subject:Date:Reply-To:Message-ID:Content-Type:Content-Transfer-Encoding;
+ b=b2GB1o5SJOxUPvrP6yBgvEyAPF/O08Va61sx8J/YTnevUAo5Bc5gL0P4co/MgN5ne8JdqVNRFx2djz2M53XClL8vS0i/Eykl7el4rqyGbW4YcYsTzDgkoo1PDqb1vRSfLYl3GFKXEjID3YRCMTT4VrafWEGWVXYo13wjDHKM/wU=
+MIME-Version: 1.0
+X-Mailer: elasticemail.com
+From: "Glympse Invite" <invite@glympsemailer.com>
+To: foo@bar.net
+X-Priority: 3 (Normal)
+List-Unsubscribe: <http://api.elasticemail.com/tracking/unsubscribe?id=esixf0v>
+Subject: Here's elvis's location, courtesy of Glympse
+Date: Mon, 04 Apr 2011 12:19:49 +0100
+Reply-To: "Glympse Invite" <invite@glympsemailer.com>
+Message-ID: <4tib7qjla4xs.esixf0v@elasticemail.net>
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: base64
+Content-Length: 142
+
+YjQyIHNheXM6IENsaWNrIGZvciBhIEdseW1wc2Ugb2YgbXkgbG9jYXRpb246IGh0dHA6Ly9nbHlt
+cHNlLmNvbS84MDEtTjFGCgpHbHltcHNlIC0gU2hhcmUgeW91ciB3aGVyZShUTSk=
