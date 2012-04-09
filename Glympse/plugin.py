@@ -83,6 +83,12 @@ class Glympse(callbacks.Plugin):
         self.unixsock = None
 
         if config.unix():
+            # delete stale socket
+            try:
+                os.unlink(self.unixsock)
+            except OSError:
+                pass
+
             self.unixsock = config.socketFile()
             self.server = SocketServer.UnixStreamServer(self.unixsock,
                     self.ConnectionHandler)
