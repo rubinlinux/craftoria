@@ -13,29 +13,29 @@ def configure(advanced):
     # user or not.  You should effect your configuration by manipulating the
     # registry as appropriate.
     from supybot.questions import expect, anything, something, yn
-    conf.registerPlugin('Glympse', True)
+    conf.registerPlugin('MsgPipe', True)
 
 
-Glympse = conf.registerPlugin('Glympse')
+MsgPipe = conf.registerPlugin('MsgPipe')
 # This is where your configuration variables (if any) should go.  For example:
-# conf.registerGlobalValue(Glympse, 'someConfigVariableName',
+# conf.registerGlobalValue(MsgPipe, 'someConfigVariableName',
 #     registry.Boolean(False, """Help for someConfigVariableName."""))
 
-conf.registerGlobalValue(Glympse, 'unix',
+conf.registerGlobalValue(MsgPipe, 'unix',
     registry.Boolean(False, """Use UNIX domain socket instead of network
     socket."""))
-conf.registerGlobalValue(Glympse, 'host',
+conf.registerGlobalValue(MsgPipe, 'host',
     registry.String('localhost', """Hostname to listen on. Ignored if UNIX
     socket is used."""))
-conf.registerGlobalValue(Glympse, 'port',
+conf.registerGlobalValue(MsgPipe, 'port',
     registry.PositiveInteger(61739, """Port to listen on. Ignored if UNIX
     socket is used."""))
-conf.registerGlobalValue(Glympse, 'socketFile',
-    registry.String('glympse_socket', """Filename of the unix socket. Ignored
+conf.registerGlobalValue(MsgPipe, 'socketFile',
+    registry.String('msgpipe_socket', """Filename of the unix socket. Ignored
     if network socket is used."""))
     
-conf.registerChannelValue(Glympse, 'announce',
-    registry.Boolean(False, """Announce incoming Glympse to the channel."""))
+conf.registerChannelValue(MsgPipe, 'announce',
+    registry.Boolean(False, """Announce incoming message to the channel."""))
 
 
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:

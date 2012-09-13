@@ -9,5 +9,5 @@ SHELL=/bin/bash
 # bot.
 :0 c
 * ^From:.*invite@glympse.*\.com
-| socat STDIN UNIX-CONNECT:/home/ircbot/glympse_socket
+| /home/ircbot/msgpipe-glympse.py /home/ircbot/glympse_socket
 

@@ -5,7 +5,7 @@
 ###
 
 """
-Listens for email messages from Glympse app and dumps their URL to a channel.
+Listens for messages from a socket dumps it to a channel.
 """
 
 import supybot
@@ -23,7 +23,7 @@ __author__ = supybot.Author('b42', 'b42', 'b42@srck.net')
 __contributors__ = {}
 
 # This is a url where the most recent plugin package can be downloaded.
-__url__ = '' # 'http://supybot.com/Members/yourname/Glympse/download'
+__url__ = '' # 'http://supybot.com/Members/yourname/MsgPipe/download'
 
 import config
 import plugin

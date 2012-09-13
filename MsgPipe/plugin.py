@@ -6,7 +6,7 @@
 
 import os
 import sys
-import email
+#import email
 import threading
 import SocketServer
 
@@ -19,7 +19,7 @@ import supybot.plugins as plugins
 import supybot.ircutils as ircutils
 import supybot.callbacks as callbacks
 
-class Glympse(callbacks.Plugin):
+class MsgPipe(callbacks.Plugin):
     """
     This plugin listens on a socket (either network or UNIX) for an email
     message (piped to it by e.g. procmail) from Glympse [http://glympse.com/].
@@ -30,56 +30,30 @@ class Glympse(callbacks.Plugin):
     class ConnectionHandler(SocketServer.StreamRequestHandler):
         def handle(self):
             if type(self.client_address) == tuple:
-                self.log.info('Glympse: network connect from: %s', self.client_address)
+                self.log.info('MsgPipe: network connect from: %s', self.client_address)
 
             try:
-                msgstr = self.rfile.read()
-                message = email.message_from_string(msgstr)
-                msg_id = message.get('Message-ID', 'Unknown')
-                whose = message['Subject'].split()[1]
-
-                # The message may have multiple parts
-                for part in message.walk():
-                    if part.is_multipart():
-                        continue
-
-                    # The URL will hopefully be in first text/plain part
-                    if part.get_content_type().lower() != 'text/plain':
-                        continue
-
-                    payload = part.get_payload(decode=True)
-                    decoded = payload.decode(part.get_content_charset())
-
-                    for word in decoded.split():
-                        if word.startswith('http:'):
-                            url = str(word)
-                            break
-                    else:
-                        raise RuntimeError, 'No URL found'
-                    break
-
-                else:
-                    raise RuntimeError, 'The message has no text/plain part'
-
-                reply = "{0} location: {1}".format(whose, url)
+                reply = self.rfile.readline()
+                reply = reply[:-1]
             except:
-                self.log.error('Glympse: exception %s: %s', sys.exc_type,
+                self.log.error('MsgPipe: exception %s: %s', sys.exc_type,
                         sys.exc_value)
-                reply = "Something wrong happened when parsing glympse message, see log for details"
+                reply = "MsgPipe: failed to read data from socket, see log for details"
 
             # Announce the location to all configured channels
             for channel in self.irc.state.channels.keys():
-                if conf.supybot.plugins.Glympse.announce.get(channel)():
+                if conf.supybot.plugins.MsgPipe.announce.get(channel)():
+                    print channel, reply
                     self.irc.queueMsg(ircmsgs.privmsg(channel, reply))
 
     def __init__(self, irc):
-        self.__parent = super(Glympse, self)
+        self.__parent = super(MsgPipe, self)
         self.__parent.__init__(irc)
 
         self.ConnectionHandler.irc = irc
         self.ConnectionHandler.log = self.log
 
-        config = conf.supybot.plugins.Glympse
+        config = conf.supybot.plugins.MsgPipe
         self.unixsock = None
 
         if config.unix():
@@ -101,14 +75,14 @@ class Glympse(callbacks.Plugin):
 
         t = threading.Thread(
                 target = self.server.serve_forever,
-                name = "GlympseThread"
+                name = "MsgPipeThread"
             )
         t.setDaemon(True)
         t.start()
         world.threadsSpawned += 1
 
     def die(self):
-        self.log.info('Glympse: shutting down socketserver')
+        self.log.info('MsgPipe: shutting down socketserver')
         self.server.shutdown()
         self.server.server_close()
 
@@ -117,6 +91,6 @@ class Glympse(callbacks.Plugin):
 
         self.__parent.die()
 
-Class = Glympse
+Class = MsgPipe
 
 # vim:set shiftwidth=4 softtabstop=4 expandtab textwidth=79:

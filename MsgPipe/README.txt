@@ -5,12 +5,12 @@ and requires a bit of a configuration to be useful.
 
 Installation:
 
-1) Copy (or link) the 'Glympse' directory to your bot's plugin directory.
+1) Copy (or link) the 'MsgPipe' directory to your bot's plugin directory.
 
 2) Configure the bot. First, set the channel (here, #mychan) to which the
    incoming messages are announced:
 
-      !config channel #mychan supybot.plugins.Glympse.announce on
+      !config channel #mychan supybot.plugins.MsgPipe.announce on
 
    Next, you need to configure where will the plugin listen for the incoming
    messages. There are two possibilities: it can either use unix socket, or a
@@ -19,14 +19,14 @@ Installation:
 
    Using unix socket:
 
-      !config supybot.plugins.Glympse.unix on
-      !config supybot.plugins.Glympse.socketFile /path/to/the/socket
+      !config supybot.plugins.MsgPipe.unix on
+      !config supybot.plugins.MsgPipe.socketFile /path/to/the/socket
 
    Using network socket:
 
-      !config supybot.plugins.Glympse.unix off
-      !config supybot.plugins.Glympse.host 0.0.0.0
-      !config supybot.plugins.Glympse.port 12345
+      !config supybot.plugins.MsgPipe.unix off
+      !config supybot.plugins.MsgPipe.host 0.0.0.0
+      !config supybot.plugins.MsgPipe.port 12345
 
    This will make the bot listen on all interfaces/addresses on port 12345. You
    may also want to set up a firewall so that no one else than the machine on
@@ -34,7 +34,7 @@ Installation:
 
    You have to reload the plugin to actually change those settings.
 
-      !reload Glympse
+      !reload MsgPipe
 
 3) Configure the email delivery. Example procmail configuration file that
    writes all messages from glympse.com to bot's unix socket is provided.

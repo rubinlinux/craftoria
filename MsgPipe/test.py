@@ -6,8 +6,8 @@
 
 from supybot.test import *
 
-class GlympseTestCase(PluginTestCase):
-    plugins = ('Glympse',)
+class MsgPipeTestCase(PluginTestCase):
+    plugins = ('MsgPipe',)
 
 
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:
