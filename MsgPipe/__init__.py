@@ -5,7 +5,7 @@
 ###
 
 """
-Listens for messages from a socket dumps it to a channel.
+Listens for messages from a socket then dumps it to a channel.
 """
 
 import supybot
@@ -13,7 +13,7 @@ import supybot.world as world
 
 # Use this for the version of this plugin.  You may wish to put a CVS keyword
 # in here if you're keeping the plugin in CVS or some similar system.
-__version__ = "0.0"
+__version__ = "0.1"
 
 # XXX Replace this with an appropriate author or supybot.Author instance.
 __author__ = supybot.Author('b42', 'b42', 'b42@srck.net')

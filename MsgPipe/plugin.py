@@ -6,7 +6,6 @@
 
 import os
 import sys
-#import email
 import threading
 import SocketServer
 
@@ -21,9 +20,8 @@ import supybot.callbacks as callbacks
 
 class MsgPipe(callbacks.Plugin):
     """
-    This plugin listens on a socket (either network or UNIX) for an email
-    message (piped to it by e.g. procmail) from Glympse [http://glympse.com/].
-    It then parses the message and dumps the enclosed URL on a channel.
+    This plugin listens on a socket (either TCP or UNIX) and whenever
+    someone sends a message to the socket, it dumps it to a channel.
     It has no commands and requires a bit of a configuration to be useful.
     """
 

@@ -1,7 +1,10 @@
-This plugin listens on a socket (either network or UNIX) for an email message
-(piped to it by e.g. procmail) from Glympse [http://glympse.com/].  It then
-parses the message and dumps the enclosed URL on a channel.  It has no commands
-and requires a bit of a configuration to be useful.
+This plugin listens on a socket (either TCP or UNIX) and whenever someone sends
+a message to the socket, it dumps it to a channel.  It has no commands and
+requires a bit of a configuration to be useful.
+
+Its original purpose was to parse email messages from Glympse
+[http://glympse.com/] piped to it via procmail and announce the enclosed URL.
+Script and sample .procmailrc for doing this are included in the archive.
 
 Installation:
 
@@ -37,9 +40,7 @@ Installation:
       !reload MsgPipe
 
 3) Configure the email delivery. Example procmail configuration file that
-   writes all messages from glympse.com to bot's unix socket is provided.
+   pipes all messages from glympse.com to the msgpipe-glympse.py script which
+   parses it and sends the url to the bot's socket is provided.
 
-   Note that netcat cannot be used instead of socat as it waits for the plugin
-   to close connection and the plugin waits for the other side to close
-   connection (because it does not know where the message ends), which results
-   in timeout error.
+   You may want to adjust the paths to the script and the socket.
