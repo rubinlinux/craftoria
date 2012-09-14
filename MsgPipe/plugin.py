@@ -32,7 +32,7 @@ class MsgPipe(callbacks.Plugin):
 
             try:
                 reply = self.rfile.readline()
-                reply = reply[:-1]
+                reply = reply.rstrip()
             except:
                 self.log.error('MsgPipe: exception %s: %s', sys.exc_type,
                         sys.exc_value)
