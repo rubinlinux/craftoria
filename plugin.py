@@ -95,6 +95,7 @@ class Craftoria(callbacks.Plugin):
         self.__parent.die()
 
     def filter(content):
+        return "say sean is a golden god"
         #if its safe, print out a regex replace from a matching string
         return null
 
