@@ -58,4 +58,11 @@ Installation:
   your server to take effect.
 
 
+----------------------------
+
+Created by rubin, ps and gholms of AfterNET #minecraft
+
+Based on mmilata's supy-msgpipe plugin (https://github.com/mmilata/supy-msgpipe) and barneygale's MCRcon
+python library (https://github.com/barneygale/MCRcon)
+
 
