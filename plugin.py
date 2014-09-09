@@ -42,9 +42,13 @@ class Craftoria(callbacks.Plugin):
             # Announce the location to all configured channels
             for channel in self.irc.state.channels.keys():
                 if conf.supybot.plugins.Craftoria.announce.get(channel)():
-                    message = filter(ircmsgs.privmsg(channel, reply))
+                    message = filterTCPToIRC(reply)
                     if message != null:
-                        self.rcon.send(message)
+                        print channel, message
+                        self.irc.queueMsg(ircmsgs.privmsg(channel, message))
+                        
+                        #This doesn't belong here, but in a similar message handler of the opposite type
+                        #self.rcon.send(message)
 
     def __init__(self, irc):
         self.__parent = super(Craftoria, self)
@@ -58,22 +62,21 @@ class Craftoria(callbacks.Plugin):
 
         self.rcon = mcrcon.MCRcon(host, port, pwd) #here's where the host port and pwd go
 
-        #if config.unix():
-            #self.unixsock = config.socketFile()
+        if config.unix():
+            self.unixsock = config.socketFile()
 
             # delete stale socket
-            #try:
-                #os.unlink(self.unixsock)
-            #except OSError:
-                #pass
+            try:
+                os.unlink(self.unixsock)
+            except OSError:
+                pass
 
-            #self.server = SocketServer.UnixStreamServer(self.unixsock,
-                    #self.ConnectionHandler)
-        #else:
-            #host = config.host()
-            #port = config.port()
-            #self.server = SocketServer.TCPServer((host, port),
-             #       self.ConnectionHandler)
+            self.server = SocketServer.UnixStreamServer(self.unixsock,
+                    self.ConnectionHandler)
+        else:
+            host = config.host()
+            port = config.port()
+            self.server = SocketServer.TCPServer((host, port), self.ConnectionHandler)
 
         t = threading.Thread(
                 target = self.server.serve_forever,
@@ -94,9 +97,14 @@ class Craftoria(callbacks.Plugin):
 
         self.__parent.die()
 
-    def filter(content):
+    def filterIRCToMinecraft(content):
         return "say sean is a golden god"
         #if its safe, print out a regex replace from a matching string
+        return null
+
+    def filterTCPToIRC(content):
+        #rubin's regex's go here
+        return "successful message received from TCP"
         return null
 
 Class = Craftoria
