@@ -86,6 +86,13 @@ class Craftoria(callbacks.Plugin):
         t.start()
         world.threadsSpawned += 1
 
+    @classmethod
+    def inFilter(self, irc, msg):
+        message = filterIRCToMinecraft(msg);
+        if message != null:
+            rcon.send(message)
+
+
     def die(self):
         rcon.close()
         self.log.info('Craftoria: shutting down socketserver')
