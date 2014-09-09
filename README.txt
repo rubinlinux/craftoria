@@ -66,3 +66,13 @@ Based on mmilata's supy-msgpipe plugin (https://github.com/mmilata/supy-msgpipe)
 python library (https://github.com/barneygale/MCRcon)
 
 
+----------------------------
+
+Some useful links for working on this...
+
+http://supybook.fealdia.org/devel/
+http://doc.supybot.aperio.fr/en/latest/develop/index.html
+http://sourceforge.net/p/supybot/code/ci/master/tree/docs/PLUGIN_TUTORIAL.rst
+http://sourceforge.net/p/gribble/wiki/Supybot_Resources/#plugin-coding
+
+
