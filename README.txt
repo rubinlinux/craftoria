@@ -1,10 +1,16 @@
-This plugin listens on a socket (either TCP or UNIX) and whenever someone sends
-a message to the socket, it dumps it to a channel.  It has no commands and
-requires a bit of a configuration to be useful.
+This plugin provides a by-directional link between a vanilla minecraft server and IRC.
 
-Its original purpose was to parse email messages from Glympse
-[http://glympse.com/] piped to it via procmail and announce the enclosed URL.
-Script and sample .procmailrc for doing this are included in the archive.
+It consists of 2 parts:
+
+--Part 1--
+Listens on a socket (either TCP or UNIX) and whenever someone sends
+a message to the socket, it dumps it to a channel.  It has no commands and
+requires a bit of a configuration to be useful. Included scripts in tools/ can follow 
+the minecraft log, and forward important bits (like chat) to this plugin.
+
+--Part 2--
+Watch irc for PRIVMSG to a channel, and use an established RCON link to 'say' chat
+to the minecraft console. 
 
 Installation:
 
@@ -35,12 +41,21 @@ Installation:
    may also want to set up a firewall so that no one else than the machine on
    which the mail is received can connect
 
+      !config supybot.plugins.Craftoria.rcon_host 127.0.0.1
+      !config supybot.plugins.Craftoria.rcon_port 12345
+      !config supybot.plugins.Craftoria.rcon_pass yoursecretpas
+     
+
    You have to reload the plugin to actually change those settings.
 
       !reload Craftoria
 
-3) Configure the email delivery. Example procmail configuration file that
-   pipes all messages from glympse.com to the msgpipe-glympse.py script which
-   parses it and sends the url to the bot's socket is provided.
 
-   You may want to adjust the paths to the script and the socket.
+  Copy logwatch.sh and send.pl from tools/ into your minecraft log directory. Then run ./logwatch.sh
+
+
+  Edit server.properties and enable rcon. enable-rcon, rcon.password, rcon.port all need configured. Restart
+  your server to take effect.
+
+
+
