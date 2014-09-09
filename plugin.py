@@ -61,7 +61,8 @@ class Craftoria(callbacks.Plugin):
         config = conf.supybot.plugins.Craftoria
         self.unixsock = None
 
-        self.rcon = mcrcon.MCRcon(config.rcon_host(), config.rcon_port(), config.rcon_pass()) #here's where the host port and pwd go
+        self.rcon = mcrcon.MCRcon(config.rcon_host(), int(config.rcon_port()), config.rcon_pass()) 
+
         if self.rcon:
             self.log.info('Craftoria: successfully connected to rcon')
         else:
@@ -111,7 +112,7 @@ class Craftoria(callbacks.Plugin):
         self.__parent.die()
 
     def filterIRCToMinecraft(self, content):
-        return "say sean is a golden god"
+        #return "say sean is a golden god"
         #if its safe, print out a regex replace from a matching string
         return None
 
