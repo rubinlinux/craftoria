@@ -62,7 +62,7 @@ class Craftoria(callbacks.Plugin):
         config = conf.supybot.plugins.Craftoria
         self.unixsock = None
 
-        self.rcon = mcrcon.MCRcon(host, port, pwd) #here's where the host port and pwd go
+        self.rcon = mcrcon.MCRcon(config.rcon_host(), int(config.rcon_port()), config.rcon_pass()) 
         if self.rcon:
             self.log.info('Craftoria: successfully connected to rcon')
         else:
@@ -124,7 +124,3 @@ class Craftoria(callbacks.Plugin):
         print "debugmsg2: " + content
         #return "successful message received from TCP"
         return None
-
-Class = Craftoria
-
-# vim:set shiftwidth=4 softtabstop=4 expandtab textwidth=79:
