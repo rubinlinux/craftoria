@@ -19,6 +19,7 @@ import supybot.ircutils as ircutils
 import supybot.callbacks as callbacks
 import getpass
 import mcrcon
+import re
 
 class Craftoria(callbacks.Plugin):
     """
@@ -112,7 +113,8 @@ class Craftoria(callbacks.Plugin):
         self.__parent.die()
 
     def filterIRCToMinecraft(self, content):
-        print "debugmsg1: " + content
+        if re.match(r'^\:([^!@]+)[^\s]*\s+privmsg\s+([^\s]*)\s*\:(.*?)\s$', content, re.IGNORECASE):
+            print re.sub(r'^\:([^!@]+)[^\s]*\s+privmsg\s+([^\s]*)\s*\:(.*?)\s$', r'\1:\3', content, 0, re.IGNORECASE)
         #return "say internet people are talking"
         #if its safe, print out a regex replace from a matching string
         return None
