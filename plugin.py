@@ -100,7 +100,7 @@ class Craftoria(callbacks.Plugin):
 
 
     def die(self):
-        rcon.close()
+        self.rcon.close()
         self.log.info('Craftoria: shutting down socketserver')
         self.server.shutdown()
         self.server.server_close()
