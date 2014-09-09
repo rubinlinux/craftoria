@@ -19,6 +19,7 @@ import supybot.ircutils as ircutils
 import supybot.callbacks as callbacks
 import getpass
 import mcrcon
+import re
 
 class Craftoria(callbacks.Plugin):
     """
@@ -43,8 +44,7 @@ class Craftoria(callbacks.Plugin):
             # Announce the location to all configured channels
             for channel in self.irc.state.channels.keys():
                 if conf.supybot.plugins.Craftoria.announce.get(channel)():
-                    #message = self.filterTCPToIRC(reply)
-                    message = reply
+                    message = self.filterTCPToIRC(reply)
                     if message:
                         print channel, message
                         self.irc.queueMsg(ircmsgs.privmsg(channel, message))
@@ -63,7 +63,6 @@ class Craftoria(callbacks.Plugin):
         self.unixsock = None
 
         self.rcon = mcrcon.MCRcon(config.rcon_host(), int(config.rcon_port()), config.rcon_pass()) 
-
         if self.rcon:
             self.log.info('Craftoria: successfully connected to rcon')
         else:
@@ -94,6 +93,7 @@ class Craftoria(callbacks.Plugin):
         t.start()
         world.threadsSpawned += 1
 
+    @classmethod
     def inFilter(self, irc, msg):
         message = self.filterIRCToMinecraft(msg);
         if message:
@@ -102,8 +102,7 @@ class Craftoria(callbacks.Plugin):
 
 
     def die(self):
-        if(self.rcon):
-           self.rcon.close()
+        self.rcon.close()
         self.log.info('Craftoria: shutting down socketserver')
         self.server.shutdown()
         self.server.server_close()
@@ -114,8 +113,9 @@ class Craftoria(callbacks.Plugin):
         self.__parent.die()
 
     def filterIRCToMinecraft(self, content):
-        self.log.info('Craftoria: filterIRCToMinecraft (%s)'%content)
-        #return "say sean is a golden god"
+        if re.match(r'^\:([^!@]+)[^\s]*\s+privmsg\s+([^\s]*)\s*\:(.*?)\s$', content, re.IGNORECASE):
+            print re.sub(r'^\:([^!@]+)[^\s]*\s+privmsg\s+([^\s]*)\s*\:(.*?)\s$', r'\1:\3', content, 0, re.IGNORECASE)
+        #return "say internet people are talking"
         #if its safe, print out a regex replace from a matching string
         return None
 
