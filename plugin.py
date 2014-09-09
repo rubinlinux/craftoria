@@ -64,6 +64,8 @@ class Craftoria(callbacks.Plugin):
         self.rcon = mcrcon.MCRcon(host, port, pwd) #here's where the host port and pwd go
         if self.rcon != null:
             self.log.info('Craftoria: successfully connected to rcon')
+        else:
+            self.log.info('Craftoria: could not connect to rcon')
 
 
         if config.unix():
