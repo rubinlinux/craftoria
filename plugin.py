@@ -43,7 +43,7 @@ class Craftoria(callbacks.Plugin):
             # Announce the location to all configured channels
             for channel in self.irc.state.channels.keys():
                 if conf.supybot.plugins.Craftoria.announce.get(channel)():
-                    message = filterTCPToIRC(reply)
+                    message = self.filterTCPToIRC(reply)
                     if message:
                         print channel, message
                         self.irc.queueMsg(ircmsgs.privmsg(channel, message))
@@ -94,7 +94,7 @@ class Craftoria(callbacks.Plugin):
 
     @classmethod
     def inFilter(self, irc, msg):
-        message = filterIRCToMinecraft(msg);
+        message = self.filterIRCToMinecraft(msg);
         if message:
             self.rcon.send(message)
 
