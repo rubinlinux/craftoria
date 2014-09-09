@@ -44,7 +44,7 @@ class Craftoria(callbacks.Plugin):
             for channel in self.irc.state.channels.keys():
                 if conf.supybot.plugins.Craftoria.announce.get(channel)():
                     message = filterTCPToIRC(reply)
-                    if message != null:
+                    if message:
                         print channel, message
                         self.irc.queueMsg(ircmsgs.privmsg(channel, message))
                         
@@ -62,7 +62,7 @@ class Craftoria(callbacks.Plugin):
         self.unixsock = None
 
         self.rcon = mcrcon.MCRcon(host, port, pwd) #here's where the host port and pwd go
-        if self.rcon != null:
+        if self.rcon:
             self.log.info('Craftoria: successfully connected to rcon')
         else:
             self.log.info('Craftoria: could not connect to rcon')
@@ -95,7 +95,7 @@ class Craftoria(callbacks.Plugin):
     @classmethod
     def inFilter(self, irc, msg):
         message = filterIRCToMinecraft(msg);
-        if message != null:
+        if message:
             rcon.send(message)
 
 
@@ -110,15 +110,15 @@ class Craftoria(callbacks.Plugin):
 
         self.__parent.die()
 
-    def filterIRCToMinecraft(content):
+    def filterIRCToMinecraft(self, content):
         return "say sean is a golden god"
         #if its safe, print out a regex replace from a matching string
-        return null
+        return None
 
-    def filterTCPToIRC(content):
+    def filterTCPToIRC(self, content):
         #rubin's regex's go here
         return "successful message received from TCP"
-        return null
+        return None
 
 Class = Craftoria
 
