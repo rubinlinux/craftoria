@@ -97,6 +97,7 @@ class Craftoria(callbacks.Plugin):
         message = self.filterIRCToMinecraft(msg);
         if message:
             self.rcon.send(message)
+        return msg
 
 
     def die(self):
