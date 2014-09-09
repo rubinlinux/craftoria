@@ -113,9 +113,9 @@ class Craftoria(callbacks.Plugin):
         self.__parent.die()
 
     def filterIRCToMinecraft(self, content):
-        if re.search(r'^\:([^!@]+)[^\s]*\s+privmsg\s+([^\s]*)\s*\:(.*?)\s$', str(content), re.IGNORECASE):
+        if re.search(r'^\:([^!@]+)[^\s]*\s+privmsg\s+(\#minecraft)\s*\:(.*?)\s$', str(content), re.IGNORECASE):
             #print re.sub(r'^\:([^!@]+)[^\s]*\s+PRIVMSG\s+([^\s]*)\s*\:(.*?)\s$', r'\<\1\> \3', str(content))
-            self.rcon.send('say ' + re.sub(r'[\r\n]', '', re.sub(r'^\:([^!@]+)[^\s]*\s+PRIVMSG\s+([^\s]*)\s*\:(.*?)\s$', r'IRC: <\1> \3\n', str(content))))
+            self.rcon.send('say ' + re.sub(r'[\r\n]', '', re.sub(r'^\:([^!@]+)[^\s]*\s+PRIVMSG\s+(\#minecraft)\s*\:(.*?)\s$', r'IRC: <\1> \3\n', str(content))))
         #return "say internet people are talking"
         #if its safe, print out a regex replace from a matching string
         return None
