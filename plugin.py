@@ -42,11 +42,11 @@ class Craftoria(callbacks.Plugin):
             # Announce the location to all configured channels
             for channel in self.irc.state.channels.keys():
                 if conf.supybot.plugins.Craftoria.announce.get(channel)():
-                    print channel, reply
-                    self.irc.queueMsg(ircmsgs.privmsg(channel, reply))
+                    message = filter(ircmsgs.privmsg(channel, reply))
+                    if message != null:
+                        self.rcon.send(message)
 
     def __init__(self, irc):
-        self.rcon = mcrcon.MCRcon(host, port, pwd) #here's where the host port and pwd go
         self.__parent = super(Craftoria, self)
         self.__parent.__init__(irc)
 
@@ -56,22 +56,24 @@ class Craftoria(callbacks.Plugin):
         config = conf.supybot.plugins.Craftoria
         self.unixsock = None
 
-        if config.unix():
-            self.unixsock = config.socketFile()
+        self.rcon = mcrcon.MCRcon(host, port, pwd) #here's where the host port and pwd go
+
+        #if config.unix():
+            #self.unixsock = config.socketFile()
 
             # delete stale socket
-            try:
-                os.unlink(self.unixsock)
-            except OSError:
-                pass
+            #try:
+                #os.unlink(self.unixsock)
+            #except OSError:
+                #pass
 
-            self.server = SocketServer.UnixStreamServer(self.unixsock,
-                    self.ConnectionHandler)
-        else:
-            host = config.host()
-            port = config.port()
-            self.server = SocketServer.TCPServer((host, port),
-                    self.ConnectionHandler)
+            #self.server = SocketServer.UnixStreamServer(self.unixsock,
+                    #self.ConnectionHandler)
+        #else:
+            #host = config.host()
+            #port = config.port()
+            #self.server = SocketServer.TCPServer((host, port),
+             #       self.ConnectionHandler)
 
         t = threading.Thread(
                 target = self.server.serve_forever,
