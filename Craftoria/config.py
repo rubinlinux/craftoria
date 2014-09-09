@@ -13,28 +13,28 @@ def configure(advanced):
     # user or not.  You should effect your configuration by manipulating the
     # registry as appropriate.
     from supybot.questions import expect, anything, something, yn
-    conf.registerPlugin('MsgPipe', True)
+    conf.registerPlugin('Craftoria', True)
 
 
-MsgPipe = conf.registerPlugin('MsgPipe')
+Craftoria = conf.registerPlugin('Craftoria')
 # This is where your configuration variables (if any) should go.  For example:
-# conf.registerGlobalValue(MsgPipe, 'someConfigVariableName',
+# conf.registerGlobalValue(Craftoria, 'someConfigVariableName',
 #     registry.Boolean(False, """Help for someConfigVariableName."""))
 
-conf.registerGlobalValue(MsgPipe, 'unix',
+conf.registerGlobalValue(Craftoria, 'unix',
     registry.Boolean(False, """Use UNIX domain socket instead of network
     socket."""))
-conf.registerGlobalValue(MsgPipe, 'host',
+conf.registerGlobalValue(Craftoria, 'host',
     registry.String('localhost', """Hostname to listen on. Ignored if UNIX
     socket is used."""))
-conf.registerGlobalValue(MsgPipe, 'port',
+conf.registerGlobalValue(Craftoria, 'port',
     registry.PositiveInteger(61739, """Port to listen on. Ignored if UNIX
     socket is used."""))
-conf.registerGlobalValue(MsgPipe, 'socketFile',
-    registry.String('msgpipe_socket', """Filename of the unix socket. Ignored
+conf.registerGlobalValue(Craftoria, 'socketFile',
+    registry.String('craftoria_socket', """Filename of the unix socket. Ignored
     if network socket is used."""))
     
-conf.registerChannelValue(MsgPipe, 'announce',
+conf.registerChannelValue(Craftoria, 'announce',
     registry.Boolean(False, """Announce incoming message to the channel."""))
 
 

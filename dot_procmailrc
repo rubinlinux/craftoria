@@ -9,5 +9,5 @@ SHELL=/bin/bash
 # bot.
 :0 c
 * ^From:.*invite@glympse.*\.com
-| /home/ircbot/msgpipe-glympse.py /home/ircbot/glympse_socket
+| /home/ircbot/craftoria-glympse.py /home/ircbot/glympse_socket
 

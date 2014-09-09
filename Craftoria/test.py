@@ -6,8 +6,8 @@
 
 from supybot.test import *
 
-class MsgPipeTestCase(PluginTestCase):
-    plugins = ('MsgPipe',)
+class CraftoriaTestCase(PluginTestCase):
+    plugins = ('Craftoria',)
 
 
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:
