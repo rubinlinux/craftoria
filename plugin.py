@@ -1,5 +1,5 @@
 ###
-# Copyright (c) 2012, b42
+# Copyright (c) 2014, Afternet.org, #minecraft
 # Published under WTFPL.
 #
 ###
@@ -17,6 +17,7 @@ from supybot.commands import *
 import supybot.plugins as plugins
 import supybot.ircutils as ircutils
 import supybot.callbacks as callbacks
+import getpass
 
 class Craftoria(callbacks.Plugin):
     """
@@ -45,6 +46,7 @@ class Craftoria(callbacks.Plugin):
                     self.irc.queueMsg(ircmsgs.privmsg(channel, reply))
 
     def __init__(self, irc):
+        self.rcon = mcrcon.MCRcon(host, port, pwd) #here's where the host port and pwd go
         self.__parent = super(Craftoria, self)
         self.__parent.__init__(irc)
 
@@ -80,6 +82,7 @@ class Craftoria(callbacks.Plugin):
         world.threadsSpawned += 1
 
     def die(self):
+        rcon.close()
         self.log.info('Craftoria: shutting down socketserver')
         self.server.shutdown()
         self.server.server_close()
@@ -88,6 +91,10 @@ class Craftoria(callbacks.Plugin):
             os.unlink(self.unixsock)
 
         self.__parent.die()
+
+    def filter(content):
+        #if its safe, print out a regex replace from a matching string
+        return null
 
 Class = Craftoria
 

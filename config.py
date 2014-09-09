@@ -30,9 +30,9 @@ conf.registerGlobalValue(Craftoria, 'host',
 conf.registerGlobalValue(Craftoria, 'port',
     registry.PositiveInteger(61739, """Port to listen on. Ignored if UNIX
     socket is used."""))
-conf.registerGlobalValue(Craftoria, 'socketFile',
-    registry.String('craftoria_socket', """Filename of the unix socket. Ignored
-    if network socket is used."""))
+#conf.registerGlobalValue(Craftoria, 'socketFile',
+#    registry.String('craftoria_socket', """Filename of the unix socket. Ignored
+#    if network socket is used."""))
     
 conf.registerChannelValue(Craftoria, 'announce',
     registry.Boolean(False, """Announce incoming message to the channel."""))

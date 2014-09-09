@@ -16,14 +16,14 @@ import supybot.world as world
 __version__ = "0.1"
 
 # XXX Replace this with an appropriate author or supybot.Author instance.
-__author__ = supybot.Author('rubin', 'rubin', 'rubin@afternet.org')
+__author__ = supybot.Author('b42', 'b42', 'b42@srck.net')
 
 # This is a dictionary mapping supybot.Author instances to lists of
 # contributions.
 __contributors__ = {}
 
 # This is a url where the most recent plugin package can be downloaded.
-__url__ = 'https://github.com/rubinlinux/craftoria'
+__url__ = '' # 'http://supybot.com/Members/yourname/MsgPipe/download'
 
 import config
 import plugin
