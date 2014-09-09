@@ -18,6 +18,7 @@ import supybot.plugins as plugins
 import supybot.ircutils as ircutils
 import supybot.callbacks as callbacks
 import getpass
+import mcrcon
 
 class Craftoria(callbacks.Plugin):
     """
@@ -61,6 +62,9 @@ class Craftoria(callbacks.Plugin):
         self.unixsock = None
 
         self.rcon = mcrcon.MCRcon(host, port, pwd) #here's where the host port and pwd go
+        if self.rcon != null:
+            self.log.info('Craftoria: successfully connected to rcon')
+
 
         if config.unix():
             self.unixsock = config.socketFile()
