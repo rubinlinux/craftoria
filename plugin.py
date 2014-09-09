@@ -61,7 +61,7 @@ class Craftoria(callbacks.Plugin):
         config = conf.supybot.plugins.Craftoria
         self.unixsock = None
 
-        self.rcon = mcrcon.MCRcon(host, port, pwd) #here's where the host port and pwd go
+        self.rcon = mcrcon.MCRcon(config.rcon_host(), config.rcon_port(), config.rcon_pass()) #here's where the host port and pwd go
         if self.rcon:
             self.log.info('Craftoria: successfully connected to rcon')
         else:
@@ -92,15 +92,15 @@ class Craftoria(callbacks.Plugin):
         t.start()
         world.threadsSpawned += 1
 
-    @classmethod
     def inFilter(self, irc, msg):
-        message = filterIRCToMinecraft(msg);
+        message = self.filterIRCToMinecraft(msg);
         if message:
-            rcon.send(message)
+            self.rcon.send(message)
 
 
     def die(self):
-        rcon.close()
+        if(self.rcon):
+           self.rcon.close()
         self.log.info('Craftoria: shutting down socketserver')
         self.server.shutdown()
         self.server.server_close()
