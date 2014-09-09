@@ -44,7 +44,8 @@ class Craftoria(callbacks.Plugin):
             # Announce the location to all configured channels
             for channel in self.irc.state.channels.keys():
                 if conf.supybot.plugins.Craftoria.announce.get(channel)():
-                    message = self.filterTCPToIRC(reply)
+                    #message = self.filterTCPToIRC(self, reply)
+                    message = reply;
                     if message:
                         print channel, message
                         self.irc.queueMsg(ircmsgs.privmsg(channel, message))
@@ -113,8 +114,8 @@ class Craftoria(callbacks.Plugin):
 
     def filterIRCToMinecraft(self, content):
         if re.search(r'^\:([^!@]+)[^\s]*\s+privmsg\s+([^\s]*)\s*\:(.*?)\s$', str(content), re.IGNORECASE):
-            print re.sub(r'^\:([^!@]+)[^\s]*\s+PRIVMSG\s+([^\s]*)\s*\:(.*?)\s$', r'\1:\3', str(content))
-            self.rcon.send('say ' + re.sub(r'[\x10\x13]', re.sub(r'^\:([^!@]+)[^\s]*\s+PRIVMSG\s+([^\s]*)\s*\:(.*?)\s$', r'\1:\3', str(content))))
+            #print re.sub(r'^\:([^!@]+)[^\s]*\s+PRIVMSG\s+([^\s]*)\s*\:(.*?)\s$', r'\<\1\> \3', str(content))
+            self.rcon.send('say ' + re.sub(r'[\r\n]', '', re.sub(r'^\:([^!@]+)[^\s]*\s+PRIVMSG\s+([^\s]*)\s*\:(.*?)\s$', r'IRC: <\1> \3\n', str(content))))
         #return "say internet people are talking"
         #if its safe, print out a regex replace from a matching string
         return None
