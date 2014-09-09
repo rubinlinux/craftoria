@@ -114,6 +114,7 @@ class Craftoria(callbacks.Plugin):
     def filterIRCToMinecraft(self, content):
         if re.search(r'^\:([^!@]+)[^\s]*\s+privmsg\s+([^\s]*)\s*\:(.*?)\s$', str(content), re.IGNORECASE):
             print re.sub(r'^\:([^!@]+)[^\s]*\s+PRIVMSG\s+([^\s]*)\s*\:(.*?)\s$', r'\1:\3', str(content))
+            self.rcon.send('say ' + re.sub(r'[\x10\x13]', re.sub(r'^\:([^!@]+)[^\s]*\s+PRIVMSG\s+([^\s]*)\s*\:(.*?)\s$', r'\1:\3', str(content))))
         #return "say internet people are talking"
         #if its safe, print out a regex replace from a matching string
         return None
