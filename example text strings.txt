@@ -1,0 +1,2 @@
+Here is an example of a message received in filterIRCToMinecraft
+(:Rubin!Rubin@rubin.Users.AfterNET.Org PRIVMSG #minecraft :there yeah. )
