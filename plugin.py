@@ -111,15 +111,15 @@ class Craftoria(callbacks.Plugin):
         self.__parent.die()
 
     def filterIRCToMinecraft(self, content):
-        self.log.info("debugmsg1: " + content)
-        return "say internet people are talking"
+        print "debugmsg1: " + content
+        #return "say internet people are talking"
         #if its safe, print out a regex replace from a matching string
         return None
 
     def filterTCPToIRC(self, content):
         #rubin's regex's go here
-        self.log.info("debugmsg1: " + content)
-        return "successful message received from TCP"
+        print "debugmsg2: " + content
+        #return "successful message received from TCP"
         return None
 
 Class = Craftoria
