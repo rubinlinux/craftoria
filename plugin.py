@@ -93,7 +93,6 @@ class Craftoria(callbacks.Plugin):
         t.start()
         world.threadsSpawned += 1
 
-    @classmethod
     def inFilter(self, irc, msg):
         message = self.filterIRCToMinecraft(msg);
         if message:
