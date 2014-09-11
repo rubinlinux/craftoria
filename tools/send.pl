@@ -43,7 +43,7 @@ $msg = "[simplanet] $msg";
 #print "DEBUG: $msg\n";
 
 my $socket = new IO::Socket::INET (
-    PeerHost => 'ender.afternet.org',
+    PeerHost => 'localhost',
     PeerPort => '23236',
     Proto => 'tcp',
 );
