@@ -121,7 +121,8 @@ class Craftoria(callbacks.Plugin):
 
     def filterIRCToMinecraft(self, content):
         #If it's a private message from an authorized channel, channels are separated by , or ;
-        print content[0]
+        self.log.info(content[0])
+        #print content[0]
         #if content[0] == 'PRIVMSG':
             #self.formatMinecraftOutput(content.nick, content[1])
         return content
