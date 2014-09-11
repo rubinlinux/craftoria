@@ -104,7 +104,7 @@ class Craftoria(callbacks.Plugin):
         t.start()
         world.threadsSpawned += 1
 
-    def inFilter(self, irc, msg):
+    def inFilter(self, msg):
         return self.filterIRCToMinecraft(msg);
 
 
