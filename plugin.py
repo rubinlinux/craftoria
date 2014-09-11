@@ -44,7 +44,8 @@ class Craftoria(callbacks.Plugin):
             # Announce the location to all configured channels
             for channel in self.irc.state.channels.keys():
                 if conf.supybot.plugins.Craftoria.announce.get(channel)():
-                    message = self.filterTCPToIRC(reply)
+                    #message = self.filterTCPToIRC(self, reply)
+                    message = reply;
                     if message:
                         print channel, message
                         self.irc.queueMsg(ircmsgs.privmsg(channel, message))
@@ -103,12 +104,8 @@ class Craftoria(callbacks.Plugin):
         t.start()
         world.threadsSpawned += 1
 
-    @classmethod
     def inFilter(self, irc, msg):
-        message = self.filterIRCToMinecraft(msg);
-        if message:
-            self.rcon.send(message)
-        return msg
+        return self.filterIRCToMinecraft(msg);
 
 
     def die(self):
@@ -123,14 +120,19 @@ class Craftoria(callbacks.Plugin):
         self.__parent.die()
 
     def filterIRCToMinecraft(self, content):
-        if re.match(r'^\:([^!@]+)[^\s]*\s+privmsg\s+([^\s]*)\s*\:(.*?)\s$', content, re.IGNORECASE):
-            print re.sub(r'^\:([^!@]+)[^\s]*\s+privmsg\s+([^\s]*)\s*\:(.*?)\s$', r'\1:\3', content, 0, re.IGNORECASE)
-        #return "say internet people are talking"
-        #if its safe, print out a regex replace from a matching string
-        return None
+        #If it's a private message from an authorized channel, channels are separated by , or ;
+        if content.command == 'PRIVMSG' and content.args[0] in re.split('[\;\,]', config.channels()):
+            self.formatMinecraftOutput(content.nick, content.args[1])
+        return content
+
+    def formatMinecraftOutput(self, nick, msg):
+        self.rcon.send('say ' + nick + ': ' + me.sub(r'[\r\n]', '', msg) )
 
     def filterTCPToIRC(self, content):
         #rubin's regex's go here
-        print "debugmsg2: " + content
-        #return "successful message received from TCP"
-        return None
+        self.log.info('Craftoria: filterTCPToIRC (%s)'%content)
+        return content
+
+Class = Craftoria
+
+# vim:set shiftwidth=4 softtabstop=4 expandtab textwidth=79:
