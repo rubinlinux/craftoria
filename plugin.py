@@ -62,10 +62,20 @@ class Craftoria(callbacks.Plugin):
         config = conf.supybot.plugins.Craftoria
         self.unixsock = None
 
-        self.rcon = mcrcon.MCRcon(config.rcon_host(), int(config.rcon_port()), config.rcon_pass()) 
+        host = config.rcon_host()
+        if host == None:
+            raise "Configuration not complete - Minecraft server 'rcon_host' DNS/IP not set"
+        port = int(config.rcon_port())
+        if port == None:
+            raise "Configuration not complete - Minecraft server 'rcon_port' port number not set"
+        rconpass = config.rcon_pass()
+        if rconpass == None:
+            raise "Configuration not complete - Minecraft server 'rcon_pass' password not set"
+        self.rcon = mcrcon.MCRcon(host, port, rconpass) 
         if self.rcon:
             self.log.info('Craftoria: successfully connected to rcon')
         else:
+            raise "Connection to Minecraft server using rcon impossible"
             self.log.info('Craftoria: could not connect to rcon')
 
 
