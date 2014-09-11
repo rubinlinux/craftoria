@@ -123,11 +123,20 @@ class Craftoria(callbacks.Plugin):
         #If it's a private message from an authorized channel, channels are separated by , or ;
         if content.command == 'PRIVMSG':
             self.formatMinecraftOutput(content.nick, content.args[1])
+        if content.command == 'ACTION':
+            self.formatMinecraftActionOutput(contnet.nick, content.args[1])
         return content
+
+    def formatMinecraftActionOutput(self, nick, action):
+        print 'say * ' + clean(nick) + ' ' + clean(action)
 
     def formatMinecraftOutput(self, nick, msg):
         #self.rcon.send('say ' + nick + ': ' + me.sub(r'[\r\n]', '', msg) )
-        print 'say ' + nick + ': ' + re.sub(r'[\r\n]', '', msg) 
+        print 'say ' + clean(nick) + ': ' + clean(msg)
+
+    def clean(self, content):
+        return re.sub(r'[\n\r]', '', content)
+        
 
     def filterTCPToIRC(self, content):
         #rubin's regex's go here
