@@ -104,7 +104,7 @@ class Craftoria(callbacks.Plugin):
         t.start()
         world.threadsSpawned += 1
 
-    def inFilter(self, msg):
+    def inFilter(self, irc, msg):
         return self.filterIRCToMinecraft(msg);
 
 
@@ -121,9 +121,7 @@ class Craftoria(callbacks.Plugin):
 
     def filterIRCToMinecraft(self, content):
         #If it's a private message from an authorized channel, channels are separated by , or ;
-        self.log.info(str(content))
-        print str(content)
-        #print content[0]
+        print content[0]
         #if content[0] == 'PRIVMSG':
             #self.formatMinecraftOutput(content.nick, content[1])
         return content
