@@ -126,7 +126,8 @@ class Craftoria(callbacks.Plugin):
         return content
 
     def formatMinecraftOutput(self, nick, msg):
-        self.rcon.send('say ' + nick + ': ' + me.sub(r'[\r\n]', '', msg) )
+        #self.rcon.send('say ' + nick + ': ' + me.sub(r'[\r\n]', '', msg) )
+        print 'say ' + nick + ': ' + me.sub(r'[\r\n]', '', msg) 
 
     def filterTCPToIRC(self, content):
         #rubin's regex's go here
