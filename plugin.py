@@ -134,7 +134,7 @@ class Craftoria(callbacks.Plugin):
         #self.rcon.send('say ' + nick + ': ' + me.sub(r'[\r\n]', '', msg) )
         print 'say ' + clean(nick) + ': ' + clean(msg)
 
-    def clean(self, content):
+    def clean(content):
         return re.sub(r'[\n\r]', '', content)
         
 
