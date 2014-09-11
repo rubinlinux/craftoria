@@ -123,17 +123,20 @@ class Craftoria(callbacks.Plugin):
         #If it's a private message from an authorized channel, channels are separated by , or ;
         if content.command == 'PRIVMSG':
             if re.search(r'^ACTION\s', content.args[1]):
-                self.formatMinecraftActionOutput(contnet.nick, content.args[1])
+                self.formatMinecraftActionOutput(content.nick, content.args[1])
             else:
                 self.formatMinecraftOutput(content.nick, content.args[1])
         return content
 
     def formatMinecraftActionOutput(self, nick, action):
-        print 'say * ' + self.clean(nick) + ' ' + self.clean(action)
+        output = 'say * ' + self.clean(nick) + ' ' + self.clean(action)
+        #self.rcon.send(output)
+        print output
 
     def formatMinecraftOutput(self, nick, msg):
-        #self.rcon.send('say ' + nick + ': ' + me.sub(r'[\r\n]', '', msg) )
-        print 'say ' + self.clean(nick) + ': ' + self.clean(re.sub(r'^ACTION\s', '', msg))
+        output = 'say <' + self.clean(nick) + '> ' + self.clean(re.sub(r'^ACTION\s', '', msg))
+        #self.rcon.send(output)
+        print output
 
     def clean(self, content):
         return re.sub(r'[\n\r]', '', content)
