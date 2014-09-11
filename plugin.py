@@ -130,12 +130,12 @@ class Craftoria(callbacks.Plugin):
 
     def formatMinecraftActionOutput(self, nick, action):
         output = 'say * ' + self.clean(nick) + ' ' + self.clean(action)
-        self.rcon.send(output)
+        #self.rcon.send(output)
         print output
 
     def formatMinecraftOutput(self, nick, msg):
         output = 'say <' + self.clean(nick) + '> ' + self.clean(re.sub(r'^.ACTION.', '', msg))
-        self.rcon.send(output)
+        #self.rcon.send(output)
         print output
 
     def clean(self, content):
