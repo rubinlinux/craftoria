@@ -134,7 +134,7 @@ class Craftoria(callbacks.Plugin):
         print output
 
     def formatMinecraftOutput(self, nick, msg):
-        test = ":".join("{:02x}".format(ord(c)) for c in msg)
+        test = ':'.join(x.encode('hex') for x in msg)
         print test
         output = 'say <' + self.clean(nick) + '> ' + self.clean(re.sub(r'^.ACTION.', '', msg))
         #self.rcon.send(output)
