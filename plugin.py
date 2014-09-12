@@ -129,7 +129,7 @@ class Craftoria(callbacks.Plugin):
         return content
 
     def formatMinecraftActionOutput(self, nick, msg):
-        output = 'say * ' + self.clean(nick) + ' ' + self.clean(re.sub(ur'^[\u0001]ACTION\s?(.*)[\u0001]$', '\1', msg, re.UNICODE))
+        output = 'say * ' + self.clean(nick) + ' ' + self.clean(re.sub(ur'^[\u0001]ACTION\s?(.*)[\u0001]$', r'\1', msg, re.UNICODE))
         #self.rcon.send(output)
         print output
 
