@@ -3,6 +3,10 @@ import select
 import struct
 import re
 
+class MCRconException (Exception):
+    def __new__(cls, *args, **kwArgs):
+        return super(MCRconException, cls).__new__(*args, **kwArgs)
+
 class MCRcon:
     def __init__(self, host, port, password):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -33,14 +37,14 @@ class MCRcon:
 
             #Error checking
             if tmp_data[-2:] != '\x00\x00':
-                raise Exception('protocol failure', 'non-null pad bytes')
+                raise MCRconException('protocol failure', 'non-null pad bytes')
             tmp_data = tmp_data[:-2]
             
             #if tmp_type != out_type:
             #    raise Exception('protocol failure', 'type mis-match', tmp_type, out_type)
            
             if tmp_req_id == -1:
-                raise Exception('auth failure')
+                raise MCRconException('auth failure')
            
             m = re.match('^Error executing: %s \((.*)\)$' % re.escape(out_data), tmp_data)
             if m:
