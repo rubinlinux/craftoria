@@ -120,7 +120,6 @@ class Craftoria(callbacks.Plugin):
         self.__parent.die()
 
     def filterIRCToMinecraft(self, content):
-        print content.args[0]
         #If it's a private message from an authorized channel, channels are separated by , or ;
         if conf.supybot.plugins.Craftoria.announce.get(content.args[0])() and content.command == 'PRIVMSG':
             if re.search(ur'^[\u0001]ACTION\s?(.*)[\u0001]$', content.args[1], re.UNICODE):
@@ -131,12 +130,12 @@ class Craftoria(callbacks.Plugin):
 
     def formatMinecraftActionOutput(self, nick, msg):
         output = 'say * ' + self.clean(nick) + ' ' + self.clean(re.sub(ur'^[\u0001]ACTION\s?(.*)[\u0001]$', r'\1', msg, re.UNICODE))
-        #self.rcon.send(output)
+        self.rcon.send(output)
         print output
 
     def formatMinecraftOutput(self, nick, action):
         output = 'say <' + self.clean(nick) + '> ' + self.clean(action)
-        #self.rcon.send(output)
+        self.rcon.send(output)
         print output
         
     def clean(self, content):
