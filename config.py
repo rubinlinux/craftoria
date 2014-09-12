@@ -30,6 +30,8 @@ conf.registerGlobalValue(Craftoria, 'host',
 conf.registerGlobalValue(Craftoria, 'port',
     registry.PositiveInteger(61739, """Port to listen on. Ignored if UNIX
     socket is used."""))
+conf.registerGlobalValue(Craftoria, 'channels',
+    registry.String('#minecraft', """Channel list to listen on, separate by comma or semicolor - [,;]."""))
 conf.registerGlobalValue(Craftoria, 'rcon_host', registry.String('localhost', """rcon_host. """))
 conf.registerGlobalValue(Craftoria, 'rcon_port', registry.String('localhost', """rcon_port. """))
 conf.registerGlobalValue(Craftoria, 'rcon_pass', registry.String('localhost', """rcon_pass. """))
