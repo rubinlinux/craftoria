@@ -10,14 +10,25 @@ class MCRconException (Exception):
 class MCRcon:
     def __init__(self, host, port, password):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.s.connect((host, port))
-        self.send_real(3, password)
+        self.host = host
+        self.port = port
+        self.password = password
+        self.connect()
+        
+    def connect(self):
+        self.s.connect((self.host, self.port))
+        self.send_real(3, self.password)
     
     def close(self):
         self.s.close()
     
-    def send(self, command):
-        return self.send_real(2, command)
+    def send(self, command, retries=3):
+        if retries <= 0:
+            raise Exception("Couldn't transmit message, couldn't reconnect")
+        try:
+            return self.send_real(2, command)
+        except MCRconException:
+            self.send(command, retries-1)
     
     def send_real(self, out_type, out_data):
         #Send the data
@@ -48,7 +59,7 @@ class MCRcon:
            
             m = re.match('^Error executing: %s \((.*)\)$' % re.escape(out_data), tmp_data)
             if m:
-                raise Exception('command failure', m.group(1))
+                raise MCRconException('command failure', m.group(1))
             
             #Append
             in_data += tmp_data
