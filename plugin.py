@@ -105,7 +105,7 @@ class Craftoria(callbacks.Plugin):
         world.threadsSpawned += 1
 
     def inFilter(self, irc, msg):
-        return self.filterIRCToMinecraft(msg, irc);
+        return self.filterIRCToMinecraft(msg);
 
 
     def die(self):
@@ -119,7 +119,8 @@ class Craftoria(callbacks.Plugin):
 
         self.__parent.die()
 
-    def filterIRCToMinecraft(self, content, irc):
+    def filterIRCToMinecraft(self, content):
+        print content.args[0]
         #If it's a private message from an authorized channel, channels are separated by , or ;
         if conf.supybot.plugins.Craftoria.announce.get(content.args[0])() and content.command == 'PRIVMSG':
             if re.search(ur'^[\u0001]ACTION\s?(.*)[\u0001]$', content.args[1], re.UNICODE):
