@@ -21,6 +21,13 @@ import getpass
 import mcrcon
 import re
 
+class ReCheck(object):
+    def __INIT__(self):
+        self.result = None
+    def check(self, pattern, text):
+        self.result = re.search(pattern, text)
+        return self.result
+
 class Craftoria(callbacks.Plugin):
     """
     This plugin listens on a socket (either TCP or UNIX) and whenever
@@ -31,7 +38,7 @@ class Craftoria(callbacks.Plugin):
     class ConnectionHandler(SocketServer.StreamRequestHandler):
         def handle(self):
             if type(self.client_address) == tuple:
-                self.log.info('Craftoria: network connect from: %s', self.client_address)
+                self.log.info('Craftoria.ConnectionHandler: network connect from: %s', self.client_address)
 
             try:
                 reply = self.rfile.readline()
@@ -44,14 +51,42 @@ class Craftoria(callbacks.Plugin):
             # Announce the location to all configured channels
             for channel in self.irc.state.channels.keys():
                 if conf.supybot.plugins.Craftoria.announce.get(channel)():
-                    #message = self.filterTCPToIRC(self, reply)
-                    message = reply;
+                    message = self.filterTCPToIRC(reply)
                     if message:
-                        print channel, message
+                        #print channel, message
+                        #message = "[] %s"%message
                         self.irc.queueMsg(ircmsgs.privmsg(channel, message))
                         
-                        #This doesn't belong here, but in a similar message handler of the opposite type
-                        #self.rcon.send(message)
+        def filterTCPToIRC(self, message):
+            #rubin's regex's go here
+
+            m = ReCheck()
+            if (m.check(r'^(\<.+\> .+)$', message)):
+                return m.result.group(1)
+            elif (m.check(r'^(\[Rcon\] .+)$', message)):
+                return False  #dont ever act on rcon since it could get us in a loop
+            elif (m.check(r'^(\[.+\] .+)$', message)):
+                return m.result.group(1)
+            elif (m.check(r'(\w+) joined the game', message)):
+                return "- %s connected"%m.result.group(1)
+            elif (m.check(r'(\w+) left the game', message)):
+                return "- %s left"%m.result.group(1)
+
+            #achievements
+            elif (m.check(r'^(\w+ has just earned the achievement.*)', message)):
+                return "- %s"%m.result.group(1)
+
+            #Deaths
+            elif (m.check(r'^(\w+ was slain by .*)', message)):
+                return "- %s"%m.result.group(1)
+            elif (m.check(r'^(\w+ suffocated .*)', message)):
+                return "- %s"%m.result.group(1)
+            
+            else:
+                self.log.info('DEBUG: no match on (%s)'%message)
+
+            return False
+
 
     def __init__(self, irc):
         self.__parent = super(Craftoria, self)
@@ -106,6 +141,7 @@ class Craftoria(callbacks.Plugin):
 
     def inFilter(self, irc, msg):
         return self.filterIRCToMinecraft(msg);
+        #return True
 
 
     def die(self):
@@ -131,21 +167,16 @@ class Craftoria(callbacks.Plugin):
     def formatMinecraftActionOutput(self, nick, msg):
         output = 'say * ' + self.clean(nick) + ' ' + self.clean(re.sub(ur'^[\u0001]ACTION\s?(.*)[\u0001]$', r'\1', msg, re.UNICODE))
         self.rcon.send(output)
-        print output
+        #print output
 
     def formatMinecraftOutput(self, nick, action):
         output = 'say <' + self.clean(nick) + '> ' + self.clean(action)
         self.rcon.send(output)
-        print output
+        print "DEBUG: Formatted output %s"%output
         
     def clean(self, content):
         return re.sub(r'[\n\r]', '', content)
         
-
-    def filterTCPToIRC(self, content):
-        #rubin's regex's go here
-        self.log.info('Craftoria: filterTCPToIRC (%s)'%content)
-        return content
 
 Class = Craftoria
 
