@@ -71,7 +71,8 @@ class Craftoria(callbacks.Plugin):
                 return "- %s connected"%m.result.group(1)
             elif (m.check(r'(\w+) left the game', message)):
                 return "- %s left"%m.result.group(1)
-
+            elif (m.check(r'^com\.mojang\.authlib.*name\=([^,]+).*\(\/([0-9.]+).*lost connection\: You are not white-listed', message)):
+                return "- Connection from %s rejected (not whitelisted: '%s')"%(m.result.group(2), m.result.group(1))
             #achievements
             elif (m.check(r'^(\w+ has just earned the achievement.*)', message)):
                 return "- %s"%m.result.group(1)
