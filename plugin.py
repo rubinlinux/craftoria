@@ -177,6 +177,15 @@ class Craftoria(callbacks.Plugin):
         
     def clean(self, content):
         return re.sub(r'[\n\r]', '', content)
+
+    def players(self, irc, msg, args):
+        """
+
+        Lists players connected to minecraft server
+        """
+
+        irc.reply(self.rcon.send("list"))
+    players = wrap(players, [])
         
 
 Class = Craftoria
