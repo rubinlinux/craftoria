@@ -24,6 +24,9 @@ Craftoria = conf.registerPlugin('Craftoria')
 conf.registerGlobalValue(Craftoria, 'unix',
     registry.Boolean(False, """Use UNIX domain socket instead of network socket."""))
 
+conf.registerGlobalValue(Craftoria, 'servername',
+    registry.String('minecraft', """Name of minecraft server. Used in announcements."""))
+
 conf.registerGlobalValue(Craftoria, 'host',
     registry.String('localhost', """Hostname to listen on. Ignored if UNIX socket is used."""))
 

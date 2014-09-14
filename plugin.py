@@ -54,7 +54,7 @@ class Craftoria(callbacks.Plugin):
                     message = self.filterTCPToIRC(reply)
                     if message:
                         #print channel, message
-                        #message = "[] %s"%message
+                        message = "[%s] %s"%(conf.supybot.plugins.Craftoria.servername, message)
                         self.irc.queueMsg(ircmsgs.privmsg(channel, message))
                         
         def filterTCPToIRC(self, message):
