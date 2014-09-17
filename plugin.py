@@ -82,6 +82,8 @@ class Craftoria(callbacks.Plugin):
                 return "- %s"%m.result.group(1)
             elif (m.check(r'^(\w+ suffocated .*)', message)):
                 return "- %s"%m.result.group(1)
+            elif (m.check(r'^(\w+ was blown up .*)', message)):
+                return "- %s"%m.result.group(1)
             
             else:
                 self.log.info('DEBUG: no match on (%s)'%message)
