@@ -125,9 +125,12 @@ class Craftoria(callbacks.Plugin):
                 ]
 
                 for x in phrases:
-                    m = re.match(message, x)
-                    if m:
-                        return "- %s"%m.result.group(1)
+                    try:
+                        m = re.match(message, x)
+                        if m:
+                            return "- %s"%m.result.group(1)
+                    except(E):
+                        self.log.info(str(E))
 
                 #if no match then debug it
                 self.log.info('DEBUG: no match on (%s)'%message)
