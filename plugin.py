@@ -128,7 +128,7 @@ class Craftoria(callbacks.Plugin):
                     try:
                         m = re.match(message, x)
                         if m:
-                            return "- %s"%m.result.group(1)
+                            return "- %s"%m.result.group(0)
                     except(E):
                         self.log.info(str(E))
 
