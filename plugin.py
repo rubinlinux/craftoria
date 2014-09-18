@@ -78,14 +78,58 @@ class Craftoria(callbacks.Plugin):
                 return "- %s"%m.result.group(1)
 
             #Deaths
-            elif (m.check(r'^(\w+ was slain by .*)', message)):
-                return "- %s"%m.result.group(1)
-            elif (m.check(r'^(\w+ suffocated .*)', message)):
-                return "- %s"%m.result.group(1)
-            elif (m.check(r'^(\w+ was blown up .*)', message)):
-                return "- %s"%m.result.group(1)
-            
             else:
+                phrases = [
+                    r'^(.*?) was slain by .*$',
+                    r'^(.*?) suffocated .*$',
+                    r'^(.*?) was blown up .*$',
+                    r'^(.*?) withered away.*$',
+                    r'^[^\s]+ fell out of the world.*$',
+                    r'^[^\s]+ fell from a high place and fell out of the world.*$',
+                    r'^[^\s]+ was knocked into the void by.*$',
+                    r'^[^\s]+ was pummeled by.*$',
+                    r'^[^\s]+ was killed while trying to hurt.*$',
+                    r'^[^\s]+ suffocated in a wall.*$',
+                    r'^[^\s]+ starved to death.*$',
+                    r'^[^\s]+ was killed by magic.*$',
+                    r'^[^\s]+ got finished off by (.*?) using .*$',
+                    r'^[^\s]+ tried to swim in lava while trying to escape.*$',
+                    r'^[^\s]+ was slain by (.*?) using .*$',
+                    r'^[^\s]+ was shot by .*$',
+                    r'^[^\s]+ was killed by (.*?) using magic.*$',
+                    r'^[^\s]+ died.*$',
+                    r'^[^\s]+ was struck by lightning.*$',
+                    r'^[^\s]+ was squashed by a falling block.*$',
+                    r'^[^\s]+ tried to swim in lava.*$',
+                    r'^[^\s]+ was slain by.*$',
+                    r'^[^\s]+ was shot by.*$',
+                    r'^[^\s]+ was fireballed by.*$',
+                    r'^[^\s]+ was killed by (.*?) using magic.*$',
+                    r'^[^\s]+ got finished off by (.*?) using.*$',
+                    r'^[^\s]+ was slain by (.*?) using.*$',
+                    r'^[^\s]+ went up in flames.*$',
+                    r'^[^\s]+ burned to death.*$',
+                    r'^[^\s]+ was burnt to a crisp whilst fighting.*$',
+                    r'^[^\s]+ walked into a fire whilst fighting.*$',
+                    r'^[^\s]+ hit the ground too hard.*$',
+                    r'^[^\s]+ fell from a high place.*$',
+                    r'^[^\s]+ fell off a ladder.*$',
+                    r'^[^\s]+ fell off some vines.*$',
+                    r'^[^\s]+ fell out of the water.*$',
+                    r'^[^\s]+ fell into a patch of fire.*$',
+                    r'^[^\s]+ fell into a patch of cacti.*$',
+                    r'^[^\s]+ was doomed to fall \(by (.*?)\).*$',
+                    r'^[^\s]+ was shot off some vines by (.*?).*$',
+                    r'^[^\s]+ was shot off a ladder by (.*?).*$',
+                    r'^[^\s]+ was blown from a high place by (.*?).*$',
+                ]
+
+                for x in phrases:
+                    m = re.match(message, x)
+                    if m:
+                        return "- %s"%m.result.group(1)
+
+                #if no match then debug it
                 self.log.info('DEBUG: no match on (%s)'%message)
 
             return False
