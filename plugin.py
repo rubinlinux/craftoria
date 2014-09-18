@@ -93,7 +93,7 @@ class Craftoria(callbacks.Plugin):
                     r'^(.*?) starved to death.*$',
                     r'^(.*?) was killed by magic.*$',
                     r'^(.*?) got finished off by (.*?) using .*$',
-                    r'^(.*?) tried to swim in lava while trying to escape.*$',
+                    r'^(.*?) tried to swim in lava.*$',
                     r'^(.*?) was slain by (.*?) using .*$',
                     r'^(.*?) was shot by .*$',
                     r'^(.*?) was killed by (.*?) using magic.*$',
