@@ -122,13 +122,14 @@ class Craftoria(callbacks.Plugin):
                     r'^(.*?) was shot off some vines by (.*?).*$',
                     r'^(.*?) was shot off a ladder by (.*?).*$',
                     r'^(.*?) was blown from a high place by (.*?).*$',
+                    r'^(.*?) drowned.*$',
                 ]
 
                 for x in phrases:
                     try:
                         m = re.match(message, x)
                         if m:
-                            return "- %s"%m.result.group(0)
+                            return "- %s"%message
                     except(E):
                         self.log.info(str(E))
 
