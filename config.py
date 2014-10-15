@@ -34,8 +34,8 @@ conf.registerGlobalValue(Craftoria, 'port',
     registry.PositiveInteger(61739, """Port to listen on. Ignored if UNIX socket is used."""))
 
 conf.registerGlobalValue(Craftoria, 'rcon_host', registry.String('localhost', """rcon_host. """))
-conf.registerGlobalValue(Craftoria, 'rcon_port', registry.String('localhost', """rcon_port. """))
-conf.registerGlobalValue(Craftoria, 'rcon_pass', registry.String('localhost', """rcon_pass. """))
+conf.registerGlobalValue(Craftoria, 'rcon_port', registry.PositiveInteger(25575, """rcon_port. """))
+conf.registerGlobalValue(Craftoria, 'rcon_pass', registry.String('password', """rcon_pass. """))
 conf.registerGlobalValue(Craftoria, 'socketFile',
     registry.String('craftoria_socket', """Filename of the unix socket. Ignored
     if network socket is used."""))
