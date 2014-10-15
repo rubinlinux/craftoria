@@ -150,7 +150,7 @@ class Craftoria(callbacks.Plugin):
             self.log.info('Craftoria: could not connect to rcon')
 
 
-        if config.unix():
+        if config.unix() and config.socketFile():
             self.unixsock = config.socketFile()
 
             # delete stale socket
