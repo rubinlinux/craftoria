@@ -24,14 +24,13 @@ class MCRcon:
     
     def send(self, command, retries=3):
         if retries <= 0:
-            raise Exception("Couldn't transmit message, couldn't reconnect")
-        try:
-            #if retries<3:
             try:
                 self.close()
+                self.connect()
             except Exception:
-                self.log.info('Failure to send message! Possibly disconnected, will retry until KILLED')
-            self.connect()
+                raise Exception("Couldn't transmit message, couldn't reconnect")
+        
+        try:
             return self.send_real(2, command)
         except MCRconException:
             self.send(command, retries-1)
