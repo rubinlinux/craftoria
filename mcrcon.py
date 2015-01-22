@@ -27,6 +27,7 @@ class MCRcon:
             try:
                 self.close()
                 self.connect()
+                retries = 3 # reset the retries counter
             except Exception:
                 raise Exception("Couldn't transmit message, couldn't reconnect")
         
