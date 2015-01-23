@@ -21,25 +21,21 @@ Craftoria = conf.registerPlugin('Craftoria')
 # conf.registerGlobalValue(Craftoria, 'someConfigVariableName',
 #     registry.Boolean(False, """Help for someConfigVariableName."""))
 
-conf.registerGlobalValue(Craftoria, 'unix',
-    registry.Boolean(False, """Use UNIX domain socket instead of network socket."""))
-
 conf.registerGlobalValue(Craftoria, 'servername',
     registry.String('minecraft', """Name of minecraft server. Used in announcements."""))
 
-conf.registerGlobalValue(Craftoria, 'host',
-    registry.String('localhost', """Hostname to listen on. Ignored if UNIX socket is used."""))
+conf.registerGlobalValue(Craftoria, 'minecraft_server_log',
+    registry.String('/path/to/minecraft_server/logs/latest.log',
+    """The absolute path to the Minecraft server log file."""))
 
-conf.registerGlobalValue(Craftoria, 'port',
-    registry.PositiveInteger(61739, """Port to listen on. Ignored if UNIX socket is used."""))
+conf.registerGlobalValue(Craftoria, 'special_actions',
+    registry.Boolean(False, """Show special actions such as players changing
+    game mode or teleportation."""))
 
 conf.registerGlobalValue(Craftoria, 'rcon_host', registry.String('localhost', """rcon_host. """))
 conf.registerGlobalValue(Craftoria, 'rcon_port', registry.PositiveInteger(25575, """rcon_port. """))
 conf.registerGlobalValue(Craftoria, 'rcon_pass', registry.String('password', """rcon_pass. """))
-conf.registerGlobalValue(Craftoria, 'socketFile',
-    registry.String('craftoria_socket', """Filename of the unix socket. Ignored
-    if network socket is used."""))
-    
+
 conf.registerChannelValue(Craftoria, 'announce',
     registry.Boolean(False, """Announce incoming message to the channel."""))
 

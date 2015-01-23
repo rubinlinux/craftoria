@@ -5,7 +5,7 @@
 ###
 
 """
-Listens for messages from a socket then dumps it to a channel.
+Relays messages between MC and IRC.
 """
 
 import supybot
@@ -13,17 +13,26 @@ import supybot.world as world
 
 # Use this for the version of this plugin.  You may wish to put a CVS keyword
 # in here if you're keeping the plugin in CVS or some similar system.
-__version__ = "0.1"
+__version__ = "1.0"
 
 # XXX Replace this with an appropriate author or supybot.Author instance.
-__author__ = supybot.Author('b42', 'b42', 'b42@srck.net')
+__author__ = supybot.Author('rubin', 'rubin', 'AfterNET #minecraft')
 
 # This is a dictionary mapping supybot.Author instances to lists of
 # contributions.
-__contributors__ = {}
+supybot.authors.ps = supybot.Author('PseudoSean', 'ps', 'AfterNET #minecraft')
+supybot.authors.gholms = supybot.Author('gholms', 'gholms', 'AfterNET #minecraft')
+supybot.authors.vadtec = supybot.Author('Vadtec', 'Vadtec', 'AfterNET #minecraft')
+
+__contributors__ = {
+    supybot.authors.ps: ['Lots of stuff'],
+    supybot.authors.gholms: ['Lots of stuff'],
+    supybot.authors.vadtec: ['/me action from MC to IRC', 'Plugin reads MC log directly', 'Special actions from MC to IRC'],
+    }
+
 
 # This is a url where the most recent plugin package can be downloaded.
-__url__ = '' # 'http://supybot.com/Members/yourname/MsgPipe/download'
+__url__ = 'https://github.com/rubinlinux/craftoria'
 
 import config
 import plugin

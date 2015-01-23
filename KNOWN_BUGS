@@ -1,1 +1,3 @@
 I don't know if the plugin works when the bot is connected to multiple irc networks.
+
+The code for reconnecting the bot when it gets disconnected from rcon needs to be tested further. I'd say it's 40-50% complete.

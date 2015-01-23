@@ -8,6 +8,7 @@ import os
 import sys
 import threading
 import SocketServer
+import time
 
 import supybot.conf as conf
 import supybot.ircmsgs as ircmsgs
@@ -30,166 +31,178 @@ class ReCheck(object):
 
 class Craftoria(callbacks.Plugin):
     """
-    This plugin listens on a socket (either TCP or UNIX) and whenever
-    someone sends a message to the socket, it dumps it to a channel.
-    It has no commands and requires a bit of a configuration to be useful.
+    This plugin continuously reads the Minecraft log file and processes the
+    contents of the file, dumping messages to the configured channel(s).
+    It has no commands and needs to know the location of the Minecraft log file.
     """
-
-    class ConnectionHandler(SocketServer.StreamRequestHandler):
-        def handle(self):
-            if type(self.client_address) == tuple:
-                self.log.info('Craftoria.ConnectionHandler: network connect from: %s', self.client_address)
-
-            try:
-                reply = self.rfile.readline()
-                reply = reply.rstrip()
-            except:
-                self.log.error('Craftoria: exception %s: %s', sys.exc_type,
-                        sys.exc_value)
-                reply = "Craftoria: failed to read data from socket, see log for details"
-
-            # Announce the location to all configured channels
-            for channel in self.irc.state.channels.keys():
-                if conf.supybot.plugins.Craftoria.announce.get(channel)():
-                    message = self.filterTCPToIRC(reply)
-                    if message:
-                        #print channel, message
-                        message = "[%s] %s"%(conf.supybot.plugins.Craftoria.servername, message)
-                        self.irc.queueMsg(ircmsgs.privmsg(channel, message))
-                        
-        def filterTCPToIRC(self, message):
-            #rubin's regex's go here
-
-            m = ReCheck()
-            if (m.check(r'^(\<.+\> .+)$', message)):
-                return m.result.group(1)
-            elif (m.check(r'^(\[Rcon\] .+)$', message)):
-                return False  #dont ever act on rcon since it could get us in a loop
-            elif (m.check(r'^(\[.+\] .+)$', message)):
-                return m.result.group(1)
-            elif (m.check(r'(\w+) joined the game', message)):
-                return "- %s connected"%m.result.group(1)
-            elif (m.check(r'(\w+) left the game', message)):
-                return "- %s left"%m.result.group(1)
-            elif (m.check(r'^com\.mojang\.authlib.*name\=([^,]+).*\(\/([0-9.]+).*lost connection\: You are not white-listed', message)):
-                return "- Connection from %s rejected (not whitelisted: '%s')"%(m.result.group(2), m.result.group(1))
-            #achievements
-            elif (m.check(r'^(\w+ has just earned the achievement.*)', message)):
-                return "- %s"%m.result.group(1)
-
-            #Deaths
-            else:
-                phrases = [
-                    r'^\w+ was slain',
-                    r'^\w+ suffocated',
-                    r'^\w+ was blown up',
-                    r'^\w+ withered away',
-                    r'^\w+ fell out',
-                    r'^\w+ fell from a high place',
-                    r'^\w+ was knocked into the void',
-                    r'^\w+ was pummeled by',
-                    r'^\w+ starved to death',
-                    r'^\w+ got finished off',
-                    r'^\w+ tried to swim in lava',
-                    r'^\w+ was shot',
-                    r'^\w+ was killed',
-                    r'^\w+ died',
-                    r'^\w+ was struck by lightning',
-                    r'^\w+ was squashed',
-                    r'^\w+ was fireballed by',
-                    r'^\w+ went up in flames',
-                    r'^\w+ burned to death',
-                    r'^\w+ was burnt to a crisp',
-                    r'^\w+ walked into a fire',
-                    r'^\w+ hit the ground too hard',
-                    r'^\w+ fell off',
-                    r'^\w+ fell into',
-                    r'^\w+ was doomed to fall',
-                    r'^\w+ was blown from a high place',
-                    r'^\w+ drowned.*$',
-                ]
-
-                for x in phrases:
-                    try:
-                        m = re.search(x, message)
-                        if m:
-                            return "- %s"%message
-                    except(E):
-                        self.log.info(str(E))
-
-                #if no match then debug it
-                self.log.info('DEBUG: no match on (%s)'%message)
-
-            return False
-
-
+    
     def __init__(self, irc):
         self.__parent = super(Craftoria, self)
         self.__parent.__init__(irc)
 
-        self.ConnectionHandler.irc = irc
-        self.ConnectionHandler.log = self.log
-
+        self.irc = irc
+        self.log_read = True # so we can bail out later if necessary
+        
         config = conf.supybot.plugins.Craftoria
-        self.unixsock = None
-
-        host = config.rcon_host()
-        if host == None:
+        
+        self.special_actions = config.special_actions()
+        
+        self.rcon_host = config.rcon_host()
+        if self.rcon_host == None:
             raise "Configuration not complete - Minecraft server 'rcon_host' DNS/IP not set"
-        port = int(config.rcon_port())
-        if port == None:
+        self.rcon_port = int(config.rcon_port())
+        if self.rcon_port == None:
             raise "Configuration not complete - Minecraft server 'rcon_port' port number not set"
-        rconpass = config.rcon_pass()
-        if rconpass == None:
+        self.rcon_pass = config.rcon_pass()
+        if self.rcon_pass == None:
             raise "Configuration not complete - Minecraft server 'rcon_pass' password not set"
-        self.rcon = mcrcon.MCRcon(host, port, rconpass) 
+        self.rcon = mcrcon.MCRcon(self.rcon_host, self.rcon_port, self.rcon_pass) 
         if self.rcon:
             self.log.info('Craftoria: successfully connected to rcon')
         else:
             raise "Connection to Minecraft server using rcon impossible"
             self.log.info('Craftoria: could not connect to rcon')
-
-
-        if config.unix() and config.socketFile():
-            self.unixsock = config.socketFile()
-
-            # delete stale socket
-            try:
-                os.unlink(self.unixsock)
-            except OSError:
-                pass
-
-            self.server = SocketServer.UnixStreamServer(self.unixsock,
-                    self.ConnectionHandler)
-        else:
-            host = config.host()
-            port = config.port()
-            self.server = SocketServer.TCPServer((host, port), self.ConnectionHandler)
-
+        
+        self.mc_log = config.minecraft_server_log()
+        
         t = threading.Thread(
-                target = self.server.serve_forever,
+                target = self.read_forever,
                 name = "CraftoriaThread"
             )
         t.setDaemon(True)
         t.start()
         world.threadsSpawned += 1
-
-    def inFilter(self, irc, msg):
-        return self.filterIRCToMinecraft(msg);
-        #return True
-
-
+    
+    def clean(self, content):
+        return re.sub(r'[\r\n]', '', content)
+    
     def die(self):
         self.rcon.close()
         self.log.info('Craftoria: shutting down socketserver')
-        self.server.shutdown()
-        self.server.server_close()
-
-        if self.unixsock:
-            os.unlink(self.unixsock)
+        self.log_read = False
 
         self.__parent.die()
+    
+    def read_forever(self):
+        """
+        This function reads the log file one line at a time, reopening it if it
+        changes (due to logrotate for example).
+        This function will loop until the program ends or is explicitly told to
+        stop reading the log file.
+        """
+        try:
+            self.mc_log_fh = open(self.mc_log, 'r')
+            
+            self.curinode = os.fstat(self.mc_log_fh.fileno()).st_ino
+            
+            while self.log_read:
+                while self.log_read:
+                    self.buf = self.mc_log_fh.readline()
+                    if self.buf == "":
+                        break
+                    # sys.stdout.write(self.buf)
+                    
+                    # Announce the location to all configured channels
+                    for channel in self.irc.state.channels.keys():
+                        if conf.supybot.plugins.Craftoria.announce.get(channel)():
+                            message = self.filterTCPToIRC(self.clean(self.buf))
+                            if message:
+                                #print channel, message
+                                message = "[%s] %s"%(conf.supybot.plugins.Craftoria.servername, message)
+                                self.irc.queueMsg(ircmsgs.privmsg(channel, message))
+                try:
+                    if os.stat(self.mc_log).st_ino != self.curinode:
+                        self.mc_new_fh = open(self.mc_log, "r")
+                        self.mc_log_fh.close()
+                        self.mc_log_fh = self.mc_new_fg
+                        self.curinode = os.fstat(self.mc_log_fh.fileno()).st_ino
+                        continue # dont bother sleeping since there is a new log file
+                except IOError:
+                    pass
+                time.sleep(0.1)
+        except:
+            self.log.error('Craftoria: unable to open or read log file %s: %s',
+                sys.exc_type, sys.exc_value)
+    
+    def filterTCPToIRC(self, message):
+        #rubin's regex's go here
+        message = re.sub(r'^\[[0-9:]+\] \[[^]]+\]: ', '', message)
 
+        m = ReCheck()
+        # chat msgs
+        if m.check(r'^(\<.+\> .+)$', message):
+            return m.result.group(1)
+        elif m.check(r'^(\[Rcon\] .+)$', message):
+            return False  #dont ever act on rcon since it could get us in a loop
+        elif m.check(r'^(\[.+\] .+)$', message):
+            return m.result.group(1)
+        elif m.check(r'(\w+) joined the game', message):
+            return "- %s connected"%m.result.group(1)
+        elif m.check(r'(\w+) left the game', message):
+            return "- %s left"%m.result.group(1)
+        # actions (/me)
+        elif m.check(r'(\*.*)', message):
+            return "%s" % m.result.group(1)
+        elif m.check(r'^com\.mojang\.authlib.*name\=([^,]+).*\(\/([0-9.]+).*lost connection\: You are not white-listed', message):
+            return "- Connection from %s rejected (not whitelisted: '%s')"%(m.result.group(2), m.result.group(1))
+        # achievements
+        elif m.check(r'^(\w+ has just earned the achievement.*)', message):
+            return "- %s"%m.result.group(1)
+        # special actions
+        elif m.check(r'\[(.*: .*)\]', message):
+            if self.special_actions:
+                return m.result.group(1)
+            else:
+                return False
+        
+        #Deaths
+        else:
+            phrases = [
+                r'^\w+ was slain',
+                r'^\w+ suffocated',
+                r'^\w+ was blown up',
+                r'^\w+ withered away',
+                r'^\w+ fell out',
+                r'^\w+ fell from a high place',
+                r'^\w+ was knocked into the void',
+                r'^\w+ was pummeled by',
+                r'^\w+ starved to death',
+                r'^\w+ got finished off',
+                r'^\w+ tried to swim in lava',
+                r'^\w+ was shot',
+                r'^\w+ was killed',
+                r'^\w+ died',
+                r'^\w+ was struck by lightning',
+                r'^\w+ was squashed',
+                r'^\w+ was fireballed by',
+                r'^\w+ went up in flames',
+                r'^\w+ burned to death',
+                r'^\w+ was burnt to a crisp',
+                r'^\w+ walked into a fire',
+                r'^\w+ hit the ground too hard',
+                r'^\w+ fell off',
+                r'^\w+ fell into',
+                r'^\w+ was doomed to fall',
+                r'^\w+ was blown from a high place',
+                r'^\w+ drowned.*$',
+            ]
+
+            for x in phrases:
+                try:
+                    m = re.search(x, message)
+                    if m:
+                        return "- %s"%message
+                except(E):
+                    self.log.info(str(E))
+
+            #if no match then debug it
+            self.log.info('DEBUG: no match on (%s)'%message)
+
+        return False
+    
+    def inFilter(self, irc, msg):
+        return self.filterIRCToMinecraft(msg);
+    
     def filterIRCToMinecraft(self, content):
         #If it's a private message from an authorized channel, channels are separated by , or ;
         if content.command == 'PRIVMSG' and conf.supybot.plugins.Craftoria.announce.get(content.args[0])():
@@ -208,9 +221,6 @@ class Craftoria(callbacks.Plugin):
         output = 'say <' + self.clean(nick) + '> ' + self.clean(action)
         self.rcon.send(output)
         print "DEBUG: Formatted output %s"%output
-        
-    def clean(self, content):
-        return re.sub(r'[\n\r]', '', content)
 
     def players(self, irc, msg, args):
         """
@@ -220,7 +230,6 @@ class Craftoria(callbacks.Plugin):
 
         irc.reply(self.rcon.send("list"))
     players = wrap(players, [])
-        
 
 Class = Craftoria
 

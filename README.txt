@@ -1,70 +1,88 @@
-This plugin provides a by-directional link between a vanilla minecraft server and IRC.
+This plugin provides a by-directional link between a Minecraft server and IRC.
 
 It consists of 2 parts:
 
 --Part 1--
-Listens on a socket (either TCP or UNIX) and whenever someone sends
-a message to the socket, it dumps it to a channel.  It has no commands and
-requires a bit of a configuration to be useful. Included scripts in tools/ can follow 
-the minecraft log, and forward important bits (like chat) to this plugin.
+
+    The plugin continuously polls the Minecraft log file, watching for chat
+    messages, player actions (/me), player deaths, etc, and echoing them to the
+    assigned channel(s).
 
 --Part 2--
-Watch irc for PRIVMSG to a channel, and use an established RCON link to 'say' chat
-to the minecraft console. 
+
+    The plugin also relays messages sent to its assigned channel(s) to the
+    Minecraft server. The plugin does this using RCON, which effectively is like
+    typing directly into the Minecraft console.
 
 Installation:
 
-1) Copy (or link) the 'Craftoria' directory to your bot's plugin directory.
+    1) Copy (or link) the 'Craftoria' directory to your bot's plugin directory.
 
-2) Configure the bot. First, set the channel (here, #mychan) to which the
-   incoming messages are announced:
+    2) Configure the bot.
+    
+        First, set the channel (here, #mychan) to which the messages coming from
+        Minecraft are relayed and the messages coming from IRC will be related
+        from:
 
-      !config channel #mychan supybot.plugins.Craftoria.announce on
+            !config channel #mychan supybot.plugins.Craftoria.announce on
 
-   Next, you need to configure where will the plugin listen for the incoming
-   messages. There are two possibilities: it can either use unix socket, or a
-   network socket. The network socket is preferable if the machine receiving
-   the email is not the same machine where the bot is running.
+        Next, you need to configure where the Minecraft server log file is
+        located. You must use an absolute path to the log file, otherwise
+        unpredictable things might happen.
+        
+            !config supybot.plugins.Craftoria.minecraft_server_location /path/to/minecraft_server/logs/latest.log
+        
+        Then, configure the rcon settings. Make sure the rcon_host matches the
+        IP the Minecraft server listens on.
 
-   Using unix socket:
+            !config supybot.plugins.Craftoria.rcon_host 127.0.0.1
+            !config supybot.plugins.Craftoria.rcon_port 12345
+            !config supybot.plugins.Craftoria.rcon_pass yoursecretpass
+        
+        By default, the plugin does not relay special actions such as game mode
+        changes or teleportations. This can be changed as follows:
+        
+            !config supybot.plugins.Craftoria.special_actions on
+        
+    3) To avoid driving yourself nuts, it's best to reload the plugin and then
+    restart the bot:
+    
+        !reload Craftoria
+        quit
+        (restart bot via your chosen method)
 
-      !config supybot.plugins.Craftoria.unix on
-      !config supybot.plugins.Craftoria.socketFile /path/to/the/socket
+    4) Configure the Minecraft server.
+    
+        Edit server.properties and set the following parameters:
+        
+        enable-rcon=True
+        rcon_port 12345
+        rcon_password=yoursecretpass
+        
+        Restart your Minecraft server to make sure rcon is enabled.
 
-   Using network socket:
+Running:
 
-      !config supybot.plugins.Craftoria.unix off
-      !config supybot.plugins.Craftoria.host 0.0.0.0
-      !config supybot.plugins.Craftoria.port 12345
+    Once you have configured everything, start supybot and make sure Craftoria
+    is loaded. If everything is configured properly, you should get relay
+    traffic between Minecraft and IRC.
 
-   This will make the bot listen on all interfaces/addresses on port 12345. You
-   may also want to set up a firewall so that no one else than the machine on
-   which the mail is received can connect
+----------------------------
 
-      !config supybot.plugins.Craftoria.rcon_host 127.0.0.1
-      !config supybot.plugins.Craftoria.rcon_port 12345
-      !config supybot.plugins.Craftoria.rcon_pass yoursecretpas
-     
+Tips:
 
-   You have to reload the plugin to actually change those settings.
-
-      !reload Craftoria
-
-
-  Copy logwatch.sh and send.pl from tools/ into your minecraft log directory. Then run ./logwatch.sh
-
-
-  Edit server.properties and enable rcon. enable-rcon, rcon.password, rcon.port all need configured. Restart
-  your server to take effect.
-
+    1) Do not make changes to the supybot's config while it is running. If it's
+    running, make the changes via IRC, preferrably via query (private message).
+    2) Restart your supybot any time you make changes to the config.
 
 ----------------------------
 
 Created by rubin, ps and gholms of AfterNET #minecraft
 
+Modified by Vadtec of AfterNET #minecraft
+
 Based on mmilata's supy-msgpipe plugin (https://github.com/mmilata/supy-msgpipe) and barneygale's MCRcon
 python library (https://github.com/barneygale/MCRcon)
-
 
 ----------------------------
 
@@ -74,5 +92,3 @@ http://supybook.fealdia.org/devel/
 http://doc.supybot.aperio.fr/en/latest/develop/index.html
 http://sourceforge.net/p/supybot/code/ci/master/tree/docs/PLUGIN_TUTORIAL.rst
 http://sourceforge.net/p/gribble/wiki/Supybot_Resources/#plugin-coding
-
-
