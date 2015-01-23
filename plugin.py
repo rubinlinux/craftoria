@@ -2,8 +2,6 @@
 # Copyright (c) 2014, Afternet.org, #minecraft
 # Published under WTFPL.
 #
-# TODO: make this not echo the identify command to MC
-#
 ###
 
 import os
