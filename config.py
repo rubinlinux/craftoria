@@ -24,6 +24,15 @@ Craftoria = conf.registerPlugin('Craftoria')
 conf.registerGlobalValue(Craftoria, 'servername',
     registry.String('minecraft', """Name of minecraft server. Used in announcements."""))
 
+conf.registerGlobalValue(Craftoria, 'use_log4j',
+    registry.Boolean(False, """If true, receive log info from the Minecraft
+    server from the log4j facility, otherwise read the local log file."""))
+    
+conf.registerGlobalValue(Craftoria, 'log4j_host', registry.String('localhost',
+    """The host/IP to listen on for log4j connections."""))
+conf.registerGlobalValue(Craftoria, 'log4j_port', registry.String('25585',
+    """The port to listen on for log4j connections."""))
+
 conf.registerGlobalValue(Craftoria, 'minecraft_server_log',
     registry.String('/path/to/minecraft_server/logs/latest.log',
     """The absolute path to the Minecraft server log file."""))

@@ -9,6 +9,7 @@ import sys
 import threading
 import SocketServer
 import time
+import json
 
 import supybot.conf as conf
 import supybot.ircmsgs as ircmsgs
@@ -32,9 +33,17 @@ class ReCheck(object):
 class Craftoria(callbacks.Plugin):
     """
     This plugin continuously reads the Minecraft log file and processes the
-    contents of the file, dumping messages to the configured channel(s).
-    It has no commands and needs to know the location of the Minecraft log file.
+    contents of the file, or receives the log entries via log4j2, dumping
+    messages to the configured channel(s). It has no commands and needs to know
+    the location of the Minecraft log file.
     """
+    
+    class UDPConnectionHandler(SocketServer.BaseRequestHandler):
+        def handle(self):
+            data = self.request[0].strip()
+            socket = self.request[1]
+            
+            self.handle_message(data.strip(","))
     
     def __init__(self, irc):
         self.__parent = super(Craftoria, self)
@@ -42,11 +51,29 @@ class Craftoria(callbacks.Plugin):
 
         self.irc = irc
         self.log_read = True # so we can bail out later if necessary
+        self.log4j_read = True # so we can bail out later if necessary
         
         config = conf.supybot.plugins.Craftoria
         
         self.special_actions = config.special_actions()
+        self.use_log4j = config.use_log4j()
         
+        if self.use_log4j:
+            self.UDPConnectionHandler.irc = self.irc
+            self.UDPConnectionHandler.log = self.log
+            self.UDPConnectionHandler.handle_message = self.handle_message
+        
+            self.log4j_host = config.log4j_host()
+            if self.log4j_host == None:
+                raise "Configuration not complete - Minecraft server 'log4j_host' DNS/IP not set"
+            self.log4j_port = int(config.log4j_port())
+            if self.log4j_port == None:
+                raise "Configuration not complete - Minecraft server 'log4j_port' port number not set"
+        else:
+            self.mc_log = config.minecraft_server_log()
+            if self.mc_log == None:
+                raise "Configuration not complete - Minecraft server 'minecraft_server_log' path not set"
+            
         self.rcon_host = config.rcon_host()
         if self.rcon_host == None:
             raise "Configuration not complete - Minecraft server 'rcon_host' DNS/IP not set"
@@ -63,15 +90,24 @@ class Craftoria(callbacks.Plugin):
             raise "Connection to Minecraft server using rcon impossible"
             self.log.info('Craftoria: could not connect to rcon')
         
-        self.mc_log = config.minecraft_server_log()
-        
-        t = threading.Thread(
-                target = self.read_forever,
-                name = "CraftoriaThread"
-            )
-        t.setDaemon(True)
-        t.start()
-        world.threadsSpawned += 1
+        if self.use_log4j:
+            self.server = SocketServer.UDPServer((self.log4j_host, self.log4j_port), self.UDPConnectionHandler)
+            
+            t = threading.Thread(
+                    target = self.server.serve_forever,
+                    name = "CraftoriaThread"
+                )
+            t.setDaemon(True)
+            t.start()
+            world.threadsSpawned += 1
+        else:
+            t = threading.Thread(
+                    target = self.read_forever,
+                    name = "CraftoriaThread"
+                )
+            t.setDaemon(True)
+            t.start()
+            world.threadsSpawned += 1
     
     def clean(self, content):
         return re.sub(r'[\r\n]', '', content)
@@ -80,6 +116,7 @@ class Craftoria(callbacks.Plugin):
         self.rcon.close()
         self.log.info('Craftoria: shutting down socketserver')
         self.log_read = False
+        self.log4j_read = False
 
         self.__parent.die()
     
@@ -100,16 +137,8 @@ class Craftoria(callbacks.Plugin):
                     self.buf = self.mc_log_fh.readline()
                     if self.buf == "":
                         break
-                    # sys.stdout.write(self.buf)
                     
-                    # Announce the location to all configured channels
-                    for channel in self.irc.state.channels.keys():
-                        if conf.supybot.plugins.Craftoria.announce.get(channel)():
-                            message = self.filterTCPToIRC(self.clean(self.buf))
-                            if message:
-                                #print channel, message
-                                message = "[%s] %s"%(conf.supybot.plugins.Craftoria.servername, message)
-                                self.irc.queueMsg(ircmsgs.privmsg(channel, message))
+                    self.handle_message(self.buf)
                 try:
                     if os.stat(self.mc_log).st_ino != self.curinode:
                         self.mc_new_fh = open(self.mc_log, "r")
@@ -123,6 +152,17 @@ class Craftoria(callbacks.Plugin):
         except:
             self.log.error('Craftoria: unable to open or read log file %s: %s',
                 sys.exc_type, sys.exc_value)
+    
+    def handle_message(self, message):
+        data = json.loads(message)
+        message = self.filterTCPToIRC(self.clean(data['message']))
+        if message:
+            # Announce the location to all configured channels
+            for channel in self.irc.state.channels.keys():
+                if conf.supybot.plugins.Craftoria.announce.get(channel)():
+                    #print channel, message
+                    message = "[%s] %s" % (conf.supybot.plugins.Craftoria.servername, message)
+                    self.irc.queueMsg(ircmsgs.privmsg(channel, message))
     
     def filterTCPToIRC(self, message):
         #rubin's regex's go here
@@ -154,7 +194,10 @@ class Craftoria(callbacks.Plugin):
                 return m.result.group(1)
             else:
                 return False
-        
+        # things to ignore
+        elif m.check(r'\(UUID of player .* is [0-9a-zA-Z-]+\)', message) or \
+            m.check(r'\(.*\[/[0-9\.:]+\] logged in with entity id [0-9]+ at \(.*\)\)', message):
+            return False
         #Deaths
         else:
             phrases = [

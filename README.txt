@@ -4,7 +4,13 @@ It consists of 2 parts:
 
 --Part 1--
 
-    The plugin continuously polls the Minecraft log file, watching for chat
+    The plugin does one of two things:
+    
+    1) continuously polls the Minecraft log file, watching for chat
+    messages, player actions (/me), player deaths, etc, and echoing them to the
+    assigned channel(s).
+    
+    2) receives log messages from log4j2, watching for chat
     messages, player actions (/me), player deaths, etc, and echoing them to the
     assigned channel(s).
 
@@ -26,11 +32,27 @@ Installation:
 
             !config channel #mychan supybot.plugins.Craftoria.announce on
 
-        Next, you need to configure where the Minecraft server log file is
-        located. You must use an absolute path to the log file, otherwise
-        unpredictable things might happen.
+        Next, if you are going to use the Minecraft server log file, you need to
+        configure where the Minecraft server log file is located. You should use
+        an absolute path to the log file, otherwise unpredictable things might
+        happen.
         
             !config supybot.plugins.Craftoria.minecraft_server_location /path/to/minecraft_server/logs/latest.log
+        
+        If you are going to use log4j2 on the server, you need to edit the
+        log4j2.xml file and set the host and port parameters of the Socket
+        directive. DO NOT set the protocol to anything other than UDP, because
+        the bot only accepts log4j2 connections via UDP. Once you have edited
+        the file, put it in the Minecraft server directory. When you run your
+        Minecraft server, add -Dlog4j.configurationFile=log4j2.xml to your
+        command for running the server. This will enable log4j2 and allow it to
+        start sending log messages to the bot. If the bot is not running it will
+        not cause a problem, because log4j2 will silently ignore failures to
+        send the log messages.
+        
+            !config supybot.plugins.Craftoria.use_log4j on
+            !config supybot.plugins.Craftoria.log4j_host 127.0.0.1
+            !config supybot.plugins.Craftoria.log4j_port 25585
         
         Then, configure the rcon settings. Make sure the rcon_host matches the
         IP the Minecraft server listens on.
