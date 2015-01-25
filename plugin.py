@@ -48,6 +48,15 @@ class Craftoria(callbacks.Plugin):
     def __init__(self, irc):
         self.__parent = super(Craftoria, self)
         self.__parent.__init__(irc)
+        
+        self.data_dir = conf.supybot.directories.data
+        self.mc_irc_data_file = '%s/mc_irc_nicks.json' % self.data_dir
+        
+        # Check to see if the Minecraft<->IRC nicks data file exists, creating
+        # it if it doesn't.
+        if not os.path.exists(self.mc_irc_data_file):
+            with open(self.mc_irc_data_file, 'a') as f:
+                f.close()
 
         self.irc = irc
         self.log_read = True # so we can bail out later if necessary
@@ -286,6 +295,152 @@ class Craftoria(callbacks.Plugin):
 
         irc.reply(self.rcon.send("list"))
     players = wrap(players, [])
+    
+    # BEGIN Minecraft<->IRC nick association
+    #
+    # This code is used to associate any number of IRC nicks with a single
+    # Minecraft nick. The intent behind this is to allow the bot to help track
+    # which IRC users are which player in Minecraft.
+    #
+    # Due to the nature of this list, there is no easy way to check it for
+    # integrity. Any errors in the list will need to be handled by the bot
+    # admins/owner.
+    #
+    # The data for these commands are stored in simple text files in JSON
+    # format within the configured data directory.
+    # (supybot.directories.data)
+    #
+    # The intent of this code is not to mangle the names used when relaying
+    # messages between Minecraft and IRC, but instead to provide a simple way
+    # for users to find out who on Minecraft is who on IRC and vice versa.
+    #
+    def mcnicks(self, irc, msg, args, mc_nick=None):
+        """
+        Lists all Minecraft nicks, or the given Minecraft nick, and their
+        associated IRC nicks.
+        """
+        
+        with open(self.mc_irc_data_file, 'r') as f:
+            data = f.read()
+        
+        try:
+            data = json.loads(data)
+            
+            if mc_nick:
+                if mc_nick in data:
+                    temp = ""
+                    for nick in data[mc_nick]:
+                        temp = "%s%s, " % (temp, nick)
+                    
+                    temp = temp.strip(", ")
+                    irc.reply("Minecraft player %s is known by these nicknames on IRC: %s" % (mc_nick, temp))
+                else:
+                    irc.reply("I do not know who Minecraft player %s is" % mc_nick)
+            else:
+                irc.reply("I know the following Minecraft players by the following IRC nicks:")
+                
+                for mc_nick in data:
+                    temp = ""
+                    for nick in data[mc_nick]:
+                        temp = "%s%s, " % (temp, nick)
+                    
+                    temp = temp.strip(", ")
+                    irc.reply("%s: %s" % (mc_nick, temp))
+        except ValueError:
+            irc.reply("No Minecraft player<->IRC nickname mappings")
+    mcnicks = wrap(mcnicks, [optional('text')])
+    
+    def mcnickadd(self, irc, msg, args, mc_nick, irc_nick):
+        """
+        Adds an IRC nick to a Minecraft nick. Multiple IRC nicks can be added
+        to a single Minecraft nick.
+        If the mc_nick does not exist it is added to the list.
+        """
+
+        with open(self.mc_irc_data_file, 'r') as f:
+            data = f.read()
+        
+        try:
+            data = json.loads(data)
+            
+            if mc_nick in data:
+                if irc_nick not in data[mc_nick]:
+                    data[mc_nick].append(irc_nick)
+                    irc.reply("Minecraft player %s mapped to IRC nick %s" % (mc_nick, irc_nick))
+                else:
+                    irc.reply("I already know Minecraft player %s by IRC nick %s" %(mc_nick, irc_nick))
+            else:
+                # the Minecraft nick doesn't exist yet, create it
+                data[mc_nick] = []
+                data[mc_nick].append(irc_nick)
+                
+                irc.reply("Minecraft player %s mapped to IRC nick %s" % (mc_nick, irc_nick))
+        except ValueError:
+            # no current data set, create it
+            data = {}
+            
+            data[mc_nick] = []
+            data[mc_nick].append(irc_nick)
+            
+            irc.reply("Minecraft player %s mapped to IRC nick %s" % (mc_nick, irc_nick))
+            
+        data = json.dumps(data)
+            
+        with open(self.mc_irc_data_file, 'w') as f:
+            f.write(data)
+    mcnickadd = wrap(mcnickadd, ['admin', 'anything', 'anything'])
+    
+    def mcnickdel(self, irc, msg, args, mc_nick, irc_nick):
+        """
+        Deletes an IRC nick from a Minecraft nick.
+        If the mc_nick becomes empty after deleting irc_nick, it is removed
+        from the list.
+        """
+        
+        with open(self.mc_irc_data_file, 'r') as f:
+            data = f.read()
+        
+        data = json.loads(data)
+        
+        if mc_nick in data:
+            if irc_nick in data[mc_nick]:
+                data[mc_nick].remove(irc_nick)
+                irc.reply("I no longer know Minecraft player %s as IRC nick %s" % (mc_nick, irc_nick))
+            else:
+                irc.reply("I did not know Minecraft player %s as IRC nick %s to being with" % (mc_nick, irc_nick))
+        else:
+            irc.reply("I do not know who Minecraft player %s is")
+        
+        data = json.dumps(data)
+            
+        with open(self.mc_irc_data_file, 'w') as f:
+            f.write(data)
+    mcnickdel = wrap(mcnickdel, ['admin', 'anything', 'anything'])
+    
+    def mcnickchange(self, irc, msg, args, mc_old, mc_new):
+        """
+        Changes a Minecraft nick from it's old entry to it's new entry.
+        (To support the future nick change feature of Minecraft.)
+        """
+        
+        with open(self.mc_irc_data_file, 'r') as f:
+            data = f.read()
+        
+        data = json.loads(data)
+        
+        if mc_old in data:
+            data[mc_new] = data[mc_old]
+            del data[mc_old]
+            irc.reply("I now know Minecraft player %s as Minecraft player %s" % (mc_old, mc_new))
+        else:
+            irc.reply("I do not know who Minecraft player %s is" % mc_old)
+        
+        data = json.dumps(data)
+            
+        with open(self.mc_irc_data_file, 'w') as f:
+            f.write(data)
+    mcnickchange = wrap(mcnickchange, ['admin', 'anything', 'anything'])
+    # END Minecraft<->IRC nick association
 
 Class = Craftoria
 
