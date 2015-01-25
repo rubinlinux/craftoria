@@ -331,15 +331,18 @@ class Craftoria(callbacks.Plugin):
                 else:
                     irc.reply("I do not know who Minecraft player %s is" % mc_nick)
             else:
-                irc.reply("I know the following Minecraft players by the following IRC nicks:")
-                
-                for mc_nick in data:
-                    temp = ""
-                    for nick in data[mc_nick]:
-                        temp = "%s%s, " % (temp, nick)
+                if len(data) != 0:
+                    irc.reply("I know the following Minecraft players by the following IRC nicks:")
                     
-                    temp = temp.strip(", ")
-                    irc.reply("%s: %s" % (mc_nick, temp))
+                    for mc_nick in data:
+                        temp = ""
+                        for nick in data[mc_nick]:
+                            temp = "%s%s, " % (temp, nick)
+                        
+                        temp = temp.strip(", ")
+                        irc.reply("%s: %s" % (mc_nick, temp))
+                else:
+                    irc.reply("No Minecraft player<->IRC nickname mappings")
         except ValueError:
             irc.reply("No Minecraft player<->IRC nickname mappings")
     mcnicks = wrap(mcnicks, [optional('text')])
@@ -400,6 +403,10 @@ class Craftoria(callbacks.Plugin):
             if irc_nick in data[mc_nick]:
                 data[mc_nick].remove(irc_nick)
                 irc.reply("I no longer know Minecraft player %s as IRC nick %s" % (mc_nick, irc_nick))
+                
+                if len(data[mc_nick]) == 0:
+                    del data[mc_nick]
+                    irc.reply("I no longer know Minecraft player %s" % mc_nick)
             else:
                 irc.reply("I did not know Minecraft player %s as IRC nick %s to being with" % (mc_nick, irc_nick))
         else:
