@@ -13,7 +13,7 @@ import supybot.world as world
 
 # Use this for the version of this plugin.  You may wish to put a CVS keyword
 # in here if you're keeping the plugin in CVS or some similar system.
-__version__ = "1.0"
+__version__ = "1.2"
 
 # XXX Replace this with an appropriate author or supybot.Author instance.
 __author__ = supybot.Author('rubin', 'rubin', 'AfterNET #minecraft')
@@ -27,7 +27,7 @@ supybot.authors.vadtec = supybot.Author('Vadtec', 'Vadtec', 'AfterNET #minecraft
 __contributors__ = {
     supybot.authors.ps: ['Lots of stuff'],
     supybot.authors.gholms: ['Lots of stuff'],
-    supybot.authors.vadtec: ['/me action from MC to IRC', 'Plugin reads MC log directly', 'Special actions from MC to IRC', 'log4j2 log parsing via UDP'],
+    supybot.authors.vadtec: ['/me action from MC to IRC', 'Plugin reads MC log directly', 'Special actions from MC to IRC', 'log4j2 log parsing via UDP', 'MC<->IRC nick mapping'],
     }
 
 
