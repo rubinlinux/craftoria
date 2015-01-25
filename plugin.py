@@ -43,7 +43,7 @@ class Craftoria(callbacks.Plugin):
             data = self.request[0].strip()
             socket = self.request[1]
             
-            self.handle_message(data.strip(","))
+            self.handle_message(data.strip(","), True)
     
     def __init__(self, irc):
         self.__parent = super(Craftoria, self)
@@ -138,7 +138,7 @@ class Craftoria(callbacks.Plugin):
                     if self.buf == "":
                         break
                     
-                    self.handle_message(self.buf)
+                    self.handle_message(self.buf, False)
                 try:
                     if os.stat(self.mc_log).st_ino != self.curinode:
                         self.mc_new_fh = open(self.mc_log, "r")
@@ -153,9 +153,15 @@ class Craftoria(callbacks.Plugin):
             self.log.error('Craftoria: unable to open or read log file %s: %s',
                 sys.exc_type, sys.exc_value)
     
-    def handle_message(self, message):
-        data = json.loads(message)
-        message = self.filterTCPToIRC(self.clean(data['message']))
+    def handle_message(self, message, json_format=False):
+        message = None
+        
+        if json_format:
+            data = json.loads(message)
+            message = self.filterTCPToIRC(self.clean(data['message']))
+        else:
+            message = self.filterTCPToIRC(self.clean(message))
+        
         if message:
             # Announce the location to all configured channels
             for channel in self.irc.state.channels.keys():
