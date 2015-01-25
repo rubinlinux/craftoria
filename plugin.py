@@ -43,7 +43,7 @@ class Craftoria(callbacks.Plugin):
             data = self.request[0].strip()
             socket = self.request[1]
             
-            self.handle_message(data.strip(","))
+            self.handle_message(data.strip(","), True)
     
     def __init__(self, irc):
         self.__parent = super(Craftoria, self)
@@ -138,7 +138,7 @@ class Craftoria(callbacks.Plugin):
                     if self.buf == "":
                         break
                     
-                    self.handle_message(self.buf)
+                    self.handle_message(self.buf, False)
                 try:
                     if os.stat(self.mc_log).st_ino != self.curinode:
                         self.mc_new_fh = open(self.mc_log, "r")
@@ -153,9 +153,15 @@ class Craftoria(callbacks.Plugin):
             self.log.error('Craftoria: unable to open or read log file %s: %s',
                 sys.exc_type, sys.exc_value)
     
-    def handle_message(self, message):
-        data = json.loads(message)
-        message = self.filterTCPToIRC(self.clean(data['message']))
+    def handle_message(self, message, json_format=False):
+        message = None
+        
+        if json_format:
+            data = json.loads(message)
+            message = self.filterTCPToIRC(self.clean(data['message']))
+        else:
+            message = self.filterTCPToIRC(self.clean(message))
+        
         if message:
             # Announce the location to all configured channels
             for channel in self.irc.state.channels.keys():
@@ -176,28 +182,35 @@ class Craftoria(callbacks.Plugin):
             return False  #dont ever act on rcon since it could get us in a loop
         elif m.check(r'^(\[.+\] .+)$', message):
             return m.result.group(1)
+        
+        # join part
         elif m.check(r'(\w+) joined the game', message):
             return "- %s connected"%m.result.group(1)
         elif m.check(r'(\w+) left the game', message):
             return "- %s left"%m.result.group(1)
+        
         # actions (/me)
         elif m.check(r'(\*.*)', message):
             return "%s" % m.result.group(1)
         elif m.check(r'^com\.mojang\.authlib.*name\=([^,]+).*\(\/([0-9.]+).*lost connection\: You are not white-listed', message):
             return "- Connection from %s rejected (not whitelisted: '%s')"%(m.result.group(2), m.result.group(1))
+        
         # achievements
         elif m.check(r'^(\w+ has just earned the achievement.*)', message):
             return "- %s"%m.result.group(1)
+        
         # special actions
         elif m.check(r'\[(.*: .*)\]', message):
             if self.special_actions:
                 return m.result.group(1)
             else:
                 return False
+        
         # things to ignore
         elif m.check(r'\(UUID of player .* is [0-9a-zA-Z-]+\)', message) or \
             m.check(r'\(.*\[/[0-9\.:]+\] logged in with entity id [0-9]+ at \(.*\)\)', message):
             return False
+        
         #Deaths
         else:
             phrases = [
