@@ -176,28 +176,35 @@ class Craftoria(callbacks.Plugin):
             return False  #dont ever act on rcon since it could get us in a loop
         elif m.check(r'^(\[.+\] .+)$', message):
             return m.result.group(1)
+        
+        # join part
         elif m.check(r'(\w+) joined the game', message):
             return "- %s connected"%m.result.group(1)
         elif m.check(r'(\w+) left the game', message):
             return "- %s left"%m.result.group(1)
+        
         # actions (/me)
         elif m.check(r'(\*.*)', message):
             return "%s" % m.result.group(1)
         elif m.check(r'^com\.mojang\.authlib.*name\=([^,]+).*\(\/([0-9.]+).*lost connection\: You are not white-listed', message):
             return "- Connection from %s rejected (not whitelisted: '%s')"%(m.result.group(2), m.result.group(1))
+        
         # achievements
         elif m.check(r'^(\w+ has just earned the achievement.*)', message):
             return "- %s"%m.result.group(1)
+        
         # special actions
         elif m.check(r'\[(.*: .*)\]', message):
             if self.special_actions:
                 return m.result.group(1)
             else:
                 return False
+        
         # things to ignore
         elif m.check(r'\(UUID of player .* is [0-9a-zA-Z-]+\)', message) or \
             m.check(r'\(.*\[/[0-9\.:]+\] logged in with entity id [0-9]+ at \(.*\)\)', message):
             return False
+        
         #Deaths
         else:
             phrases = [
