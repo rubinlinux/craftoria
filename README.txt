@@ -103,8 +103,8 @@ Created by rubin, ps and gholms of AfterNET #minecraft
 
 Modified by Vadtec of AfterNET #minecraft
 
-Based on mmilata's supy-msgpipe plugin (https://github.com/mmilata/supy-msgpipe) and barneygale's MCRcon
-python library (https://github.com/barneygale/MCRcon)
+Based on mmilata's supy-msgpipe plugin (https://github.com/mmilata/supy-msgpipe)
+and barneygale's MCRcon python library (https://github.com/barneygale/MCRcon)
 
 ----------------------------
 
@@ -114,3 +114,26 @@ http://supybook.fealdia.org/devel/
 http://doc.supybot.aperio.fr/en/latest/develop/index.html
 http://sourceforge.net/p/supybot/code/ci/master/tree/docs/PLUGIN_TUTORIAL.rst
 http://sourceforge.net/p/gribble/wiki/Supybot_Resources/#plugin-coding
+
+----------------------------
+
+Minecraft<->IRC nick mapping
+
+This plugin has a simple feature for mapping Minecraft player names to IRC
+nicknames.
+
+These commands can be used by any user:
+
+!mcnicks [MC nick] - Lists all known IRC nicks for all Minecraft players, or
+    the given Minecraft player
+
+These commands require admin or higher access to the bot, to prevent spamming:
+
+!mcnickadd <MC nick> <IRC nick> - Adds the given IRC nick to the given
+    Minecraft player
+
+!mcnickdel <MC nick> <IRC nick> - Removes the given IRC nick from the given
+    Minecraft player
+
+!mcnickchange <MC old> <MC new> - Changes the old Minecraft player to the new
+    Minecraft player
