@@ -27,7 +27,7 @@ supybot.authors.vadtec = supybot.Author('Vadtec', 'Vadtec', 'AfterNET #minecraft
 __contributors__ = {
     supybot.authors.ps: ['Lots of stuff'],
     supybot.authors.gholms: ['Lots of stuff'],
-    supybot.authors.vadtec: ['/me action from MC to IRC', 'Plugin reads MC log directly', 'Special actions from MC to IRC'],
+    supybot.authors.vadtec: ['/me action from MC to IRC', 'Plugin reads MC log directly', 'Special actions from MC to IRC', 'log4j2 log parsing via UDP'],
     }
 
 
