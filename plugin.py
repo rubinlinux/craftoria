@@ -154,8 +154,6 @@ class Craftoria(callbacks.Plugin):
                 sys.exc_type, sys.exc_value)
     
     def handle_message(self, message, json_format=False):
-        message = None
-        
         if json_format:
             data = json.loads(message)
             message = self.filterTCPToIRC(self.clean(data['message']))
