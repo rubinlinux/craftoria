@@ -205,8 +205,8 @@ class Craftoria(callbacks.Plugin):
                 return False
         
         # things to ignore
-        elif m.check(r'\(UUID of player .* is [0-9a-zA-Z-]+\)', message) or \
-            m.check(r'\(.*\[/[0-9\.:]+\] logged in with entity id [0-9]+ at \(.*\)\)', message):
+        elif m.check(r'UUID of player .* is [0-9a-zA-Z-]+', message) or \
+            m.check(r'.*\[/[0-9\.:]+\] logged in with entity id [0-9]+ at \(.*\)', message):
             return False
         
         #Deaths
