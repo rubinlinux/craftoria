@@ -25,19 +25,25 @@ Installation:
     1) Copy (or link) the 'Craftoria' directory to your bot's plugin directory.
 
     2) Configure the bot.
-    
+        
+        2.1) Configuring the bots IRC channels
+        
         First, set the channel (here, #mychan) to which the messages coming from
         Minecraft are relayed and the messages coming from IRC will be related
         from:
 
             !config channel #mychan supybot.plugins.Craftoria.announce on
-
+        
+        2.1) Using the Minecraft server log file
+        
         Next, if you are going to use the Minecraft server log file, you need to
         configure where the Minecraft server log file is located. You should use
         an absolute path to the log file, otherwise unpredictable things might
         happen.
         
             !config supybot.plugins.Craftoria.minecraft_server_location /path/to/minecraft_server/logs/latest.log
+        
+        2.2) Using log4j2 built into the Minecraft server
         
         If you are going to use log4j2 on the server, you need to edit the
         log4j2.xml file and set the host and port parameters of the Socket
@@ -54,12 +60,16 @@ Installation:
             !config supybot.plugins.Craftoria.log4j_host 127.0.0.1
             !config supybot.plugins.Craftoria.log4j_port 25585
         
+        2.3) RCON settings
+        
         Then, configure the rcon settings. Make sure the rcon_host matches the
         IP the Minecraft server listens on.
 
             !config supybot.plugins.Craftoria.rcon_host 127.0.0.1
             !config supybot.plugins.Craftoria.rcon_port 12345
             !config supybot.plugins.Craftoria.rcon_pass yoursecretpass
+        
+        2.4) Special Minecraft actions
         
         By default, the plugin does not relay special actions such as game mode
         changes or teleportations. This can be changed as follows:
@@ -103,8 +113,8 @@ Created by rubin, ps and gholms of AfterNET #minecraft
 
 Modified by Vadtec of AfterNET #minecraft
 
-Based on mmilata's supy-msgpipe plugin (https://github.com/mmilata/supy-msgpipe) and barneygale's MCRcon
-python library (https://github.com/barneygale/MCRcon)
+Based on mmilata's supy-msgpipe plugin (https://github.com/mmilata/supy-msgpipe)
+and barneygale's MCRcon python library (https://github.com/barneygale/MCRcon)
 
 ----------------------------
 
@@ -114,3 +124,26 @@ http://supybook.fealdia.org/devel/
 http://doc.supybot.aperio.fr/en/latest/develop/index.html
 http://sourceforge.net/p/supybot/code/ci/master/tree/docs/PLUGIN_TUTORIAL.rst
 http://sourceforge.net/p/gribble/wiki/Supybot_Resources/#plugin-coding
+
+----------------------------
+
+Minecraft<->IRC nick mapping
+
+This plugin has a simple feature for mapping Minecraft player names to IRC
+nicknames.
+
+These commands can be used by any user:
+
+!mcnicks [MC nick] - Lists all known IRC nicks for all Minecraft players, or
+    the given Minecraft player
+
+These commands require admin or higher access to the bot, to prevent spamming:
+
+!mcnickadd <MC nick> <IRC nick> - Adds the given IRC nick to the given
+    Minecraft player
+
+!mcnickdel <MC nick> <IRC nick> - Removes the given IRC nick from the given
+    Minecraft player
+
+!mcnickchange <MC old> <MC new> - Changes the old Minecraft player to the new
+    Minecraft player
