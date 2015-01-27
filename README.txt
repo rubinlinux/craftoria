@@ -47,17 +47,19 @@ Installation:
         
         If you are going to use log4j2 on the server, you need to edit the
         log4j2.xml file and set the host and port parameters of the Socket
-        directive. DO NOT set the protocol to anything other than UDP, because
-        the bot only accepts log4j2 connections via UDP. Once you have edited
-        the file, put it in the Minecraft server directory. When you run your
-        Minecraft server, add -Dlog4j.configurationFile=log4j2.xml to your
-        command for running the server. This will enable log4j2 and allow it to
-        start sending log messages to the bot. If the bot is not running it will
-        not cause a problem, because log4j2 will silently ignore failures to
-        send the log messages.
+        directive. The host will be the IP/host of the bot receiving the log
+        entries from the Minecraft server. DO NOT set the protocol to anything
+        other than UDP, because the bot only accepts log4j2 connections via UDP.
+        Once you have edited the file, put it in the Minecraft server directory.
+        When you run your Minecraft server, add
+        -Dlog4j.configurationFile=log4j2.xml
+        to your command for running the server. This will enable log4j2 and
+        allow it to start sending log messages to the bot. If the bot is not
+        running it will not cause a problem, because log4j2 will silently ignore
+        failures to send the log messages.
         
             !config supybot.plugins.Craftoria.use_log4j on
-            !config supybot.plugins.Craftoria.log4j_host 127.0.0.1
+            !config supybot.plugins.Craftoria.log4j_host 0.0.0.0
             !config supybot.plugins.Craftoria.log4j_port 25585
         
         2.3) RCON settings
