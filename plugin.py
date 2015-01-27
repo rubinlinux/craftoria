@@ -163,8 +163,6 @@ class Craftoria(callbacks.Plugin):
                 sys.exc_type, sys.exc_value)
     
     def handle_message(self, message, json_format=False):
-        message = None
-        
         if json_format:
             data = json.loads(message)
             message = self.filterTCPToIRC(self.clean(data['message']))
@@ -216,8 +214,8 @@ class Craftoria(callbacks.Plugin):
                 return False
         
         # things to ignore
-        elif m.check(r'\(UUID of player .* is [0-9a-zA-Z-]+\)', message) or \
-            m.check(r'\(.*\[/[0-9\.:]+\] logged in with entity id [0-9]+ at \(.*\)\)', message):
+        elif m.check(r'UUID of player .* is [0-9a-zA-Z-]+', message) or \
+            m.check(r'.*\[/[0-9\.:]+\] logged in with entity id [0-9]+ at \(.*\)', message):
             return False
         
         #Deaths
