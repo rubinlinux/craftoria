@@ -32,6 +32,8 @@ conf.registerGlobalValue(Craftoria, 'log4j_host', registry.String('localhost',
     """The host/IP to listen on for log4j connections."""))
 conf.registerGlobalValue(Craftoria, 'log4j_port', registry.String('25585',
     """The port to listen on for log4j connections."""))
+conf.registerGlobalValue(Craftoria, 'log4j_host_accept', registry.String('localhost',
+    """The IP addresses to accept log4j data from."""))
 
 conf.registerGlobalValue(Craftoria, 'minecraft_server_log',
     registry.String('/path/to/minecraft_server/logs/latest.log',
