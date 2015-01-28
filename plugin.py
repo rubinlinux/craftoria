@@ -41,9 +41,13 @@ class Craftoria(callbacks.Plugin):
     class UDPConnectionHandler(SocketServer.BaseRequestHandler):
         def handle(self):
             data = self.request[0].strip()
-            socket = self.request[1]
+            client = self.client_address[0]
             
-            self.handle_message(data.strip(","), True)
+            # if the client sending the data is allowed, process it, otherwise
+            # do nothing
+            # (don't respond, don't acknowledge, don't process, simply ignore it)
+            if client == self.config.log4j_host_accept:
+                self.handle_message(data.strip(","), True)
     
     def __init__(self, irc):
         self.__parent = super(Craftoria, self)
@@ -62,34 +66,35 @@ class Craftoria(callbacks.Plugin):
         self.log_read = True # so we can bail out later if necessary
         self.log4j_read = True # so we can bail out later if necessary
         
-        config = conf.supybot.plugins.Craftoria
+        self.config = conf.supybot.plugins.Craftoria
         
-        self.special_actions = config.special_actions()
-        self.use_log4j = config.use_log4j()
+        self.special_actions = self.config.special_actions()
+        self.use_log4j = self.config.use_log4j()
         
         if self.use_log4j:
             self.UDPConnectionHandler.irc = self.irc
             self.UDPConnectionHandler.log = self.log
             self.UDPConnectionHandler.handle_message = self.handle_message
+            self.UDPConnectionHandler.config = self.config
         
-            self.log4j_host = config.log4j_host()
+            self.log4j_host = self.config.log4j_host()
             if self.log4j_host == None:
                 raise "Configuration not complete - Minecraft server 'log4j_host' DNS/IP not set"
-            self.log4j_port = int(config.log4j_port())
+            self.log4j_port = int(self.config.log4j_port())
             if self.log4j_port == None:
                 raise "Configuration not complete - Minecraft server 'log4j_port' port number not set"
         else:
-            self.mc_log = config.minecraft_server_log()
+            self.mc_log = self.config.minecraft_server_log()
             if self.mc_log == None:
                 raise "Configuration not complete - Minecraft server 'minecraft_server_log' path not set"
             
-        self.rcon_host = config.rcon_host()
+        self.rcon_host = self.config.rcon_host()
         if self.rcon_host == None:
             raise "Configuration not complete - Minecraft server 'rcon_host' DNS/IP not set"
-        self.rcon_port = int(config.rcon_port())
+        self.rcon_port = int(self.config.rcon_port())
         if self.rcon_port == None:
             raise "Configuration not complete - Minecraft server 'rcon_port' port number not set"
-        self.rcon_pass = config.rcon_pass()
+        self.rcon_pass = self.config.rcon_pass()
         if self.rcon_pass == None:
             raise "Configuration not complete - Minecraft server 'rcon_pass' password not set"
         self.rcon = mcrcon.MCRcon(self.rcon_host, self.rcon_port, self.rcon_pass) 
