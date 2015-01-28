@@ -34,16 +34,16 @@ Installation:
 
             !config channel #mychan supybot.plugins.Craftoria.announce on
         
-        2.1) Using the Minecraft server log file
+        2.2) Using the Minecraft server log file
         
         Next, if you are going to use the Minecraft server log file, you need to
         configure where the Minecraft server log file is located. You should use
         an absolute path to the log file, otherwise unpredictable things might
         happen.
         
-            !config supybot.plugins.Craftoria.minecraft_server_location /path/to/minecraft_server/logs/latest.log
+            !config supybot.plugins.Craftoria.minecraft_server_log /path/to/minecraft_server/logs/latest.log
         
-        2.2) Using log4j2 built into the Minecraft server
+        2.3) Using log4j2 built into the Minecraft server
         
         If you are going to use log4j2 on the server, you need to edit the
         log4j2.xml file and set the host and port parameters of the Socket
@@ -62,7 +62,7 @@ Installation:
             !config supybot.plugins.Craftoria.log4j_host 0.0.0.0
             !config supybot.plugins.Craftoria.log4j_port 25585
         
-        2.3) RCON settings
+        2.4) RCON settings
         
         Then, configure the rcon settings. Make sure the rcon_host matches the
         IP the Minecraft server listens on.
@@ -71,7 +71,7 @@ Installation:
             !config supybot.plugins.Craftoria.rcon_port 12345
             !config supybot.plugins.Craftoria.rcon_pass yoursecretpass
         
-        2.4) Special Minecraft actions
+        2.5) Special Minecraft actions
         
         By default, the plugin does not relay special actions such as game mode
         changes or teleportations. This can be changed as follows:
