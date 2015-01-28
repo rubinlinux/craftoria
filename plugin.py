@@ -46,7 +46,7 @@ class Craftoria(callbacks.Plugin):
             # if the client sending the data is allowed, process it, otherwise
             # do nothing
             # (don't respond, don't acknowledge, don't process, simply ignore it)
-            if client == self.config.log4j_host_accept:
+            if str(client) == str(self.config.log4j_host_accept):
                 self.handle_message(data.strip(","), True)
     
     def __init__(self, irc):
@@ -83,6 +83,9 @@ class Craftoria(callbacks.Plugin):
             self.log4j_port = int(self.config.log4j_port())
             if self.log4j_port == None:
                 raise "Configuration not complete - Minecraft server 'log4j_port' port number not set"
+            self.log4j_host_accept = self.config.log4j_host_accept()
+            if self.log4j_host_accept == None:
+                raise "Configuration not complete - Minecraft server 'log4j_host_accept' IP not set"
         else:
             self.mc_log = self.config.minecraft_server_log()
             if self.mc_log == None:
