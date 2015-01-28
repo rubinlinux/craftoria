@@ -37,12 +37,8 @@ Installation:
         from:
 
             !config channel #mychan supybot.plugins.Craftoria.announce on
-        
-<<<<<<< HEAD
-        2.2) Using the Minecraft server log file
-=======
+
         [2.2.2] Using the Minecraft server log file
->>>>>>> vadtec
         
         Next, if you are going to use the Minecraft server log file, you need to
         configure where the Minecraft server log file is located. You should use
@@ -50,15 +46,10 @@ Installation:
         happen.
         
             !config supybot.plugins.Craftoria.minecraft_server_log /path/to/minecraft_server/logs/latest.log
-<<<<<<< HEAD
-        
-        2.3) Using log4j2 built into the Minecraft server
-=======
         
         [2.2.3] Using log4j2 built into the Minecraft server
         
         [2.2.3.1] log4j2.xml
->>>>>>> vadtec
         
         If you are going to use log4j2 on the server, you need to edit the
         log4j2.xml file and set the host and port parameters of the Socket
@@ -74,10 +65,7 @@ Installation:
             !config supybot.plugins.Craftoria.use_log4j on
             !config supybot.plugins.Craftoria.log4j_host 0.0.0.0
             !config supybot.plugins.Craftoria.log4j_port 25585
-        
-<<<<<<< HEAD
-        2.4) RCON settings
-=======
+
         [2.2.3.2] In order to secure the bot and prevent malicious use, you will
         need to configure the IP that is allowed to send log traffic to the bot.
         This will be the IP of the Minecraft server sending the log traffic.
@@ -92,7 +80,6 @@ Installation:
         because log4j2 will silently ignore failures to send the log messages.
         
         [2.2.4] RCON settings
->>>>>>> vadtec
         
         Then, configure the rcon settings. Make sure the rcon_host matches the
         IP the Minecraft server listens on.
@@ -101,11 +88,7 @@ Installation:
             !config supybot.plugins.Craftoria.rcon_port 12345
             !config supybot.plugins.Craftoria.rcon_pass yoursecretpass
         
-<<<<<<< HEAD
-        2.5) Special Minecraft actions
-=======
         [2.2.5] Special Minecraft actions
->>>>>>> vadtec
         
         By default, the plugin does not relay special actions such as game mode
         changes or teleportations. This can be changed as follows:
