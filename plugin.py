@@ -46,6 +46,7 @@ class Craftoria(callbacks.Plugin):
             # if the client sending the data is allowed, process it, otherwise
             # do nothing
             # (don't respond, don't acknowledge, don't process, simply ignore it)
+            # TODO: support CIDR
             if str(client) == str(self.config.log4j_host_accept):
                 self.handle_message(data.strip(","), True)
     
