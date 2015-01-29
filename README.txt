@@ -159,7 +159,9 @@ http://sourceforge.net/p/gribble/wiki/Supybot_Resources/#plugin-coding
 Minecraft<->IRC nick mapping
 
 This plugin has a simple feature for mapping Minecraft player names to IRC
-nicknames.
+nicknames. While it currently doesn't do anything with UUIDs, the plugin tracks
+Minecraft UUIDs. When a Minecraft user name changes, the plugin will
+automatically update the Minecraft user name the next time the user connects.
 
 These commands can be used by any user:
 
