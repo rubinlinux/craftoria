@@ -178,3 +178,22 @@ These commands require admin or higher access to the bot, to prevent spamming:
 
 [7.4] !mcnickchange <MC old> <MC new> - Changes the old Minecraft player to the new
     Minecraft player
+
+----------------------------
+
+[8]
+
+RCON commands
+
+This plugin provides a direct command to RCON, as well as some shortcut
+commands.
+
+[8.1] !players - Lists the players currently on the server
+
+These commands require admin or higher access to the bot:
+
+[8.2] !rcon <command> - Sends any valid console command to the Minecraft
+    server console and returns its output
+
+[8.3] !whitelist <command> [nick] - Lists and manipulates the Minecraft server
+    white list
