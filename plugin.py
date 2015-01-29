@@ -9,6 +9,7 @@ import sys
 import threading
 import SocketServer
 import time
+import datetime
 import json
 
 import supybot.conf as conf
@@ -57,12 +58,8 @@ class Craftoria(callbacks.Plugin):
         self.data_dir = conf.supybot.directories.data
         self.mc_irc_data_file = '%s/mc_irc_nicks.json' % self.data_dir
         
-        # Check to see if the Minecraft<->IRC nicks data file exists, creating
-        # it if it doesn't.
-        if not os.path.exists(self.mc_irc_data_file):
-            with open(self.mc_irc_data_file, 'a') as f:
-                f.close()
-
+        self.mcnicks_check_data_file()
+        
         self.irc = irc
         self.log_read = True # so we can bail out later if necessary
         self.log4j_read = True # so we can bail out later if necessary
@@ -174,9 +171,9 @@ class Craftoria(callbacks.Plugin):
     def handle_message(self, message, json_format=False):
         if json_format:
             data = json.loads(message)
-            message = self.filterTCPToIRC(self.clean(data['message']))
+            message = self.filterLogToIRC(self.clean(data['message']))
         else:
-            message = self.filterTCPToIRC(self.clean(message))
+            message = self.filterLogToIRC(self.clean(message))
         
         if message:
             # Announce the location to all configured channels
@@ -186,7 +183,7 @@ class Craftoria(callbacks.Plugin):
                     message = "[%s] %s" % (conf.supybot.plugins.Craftoria.servername, message)
                     self.irc.queueMsg(ircmsgs.privmsg(channel, message))
     
-    def filterTCPToIRC(self, message):
+    def filterLogToIRC(self, message):
         #rubin's regex's go here
         message = re.sub(r'^\[[0-9:]+\] \[[^]]+\]: ', '', message)
 
@@ -208,6 +205,8 @@ class Craftoria(callbacks.Plugin):
         # actions (/me)
         elif m.check(r'(\*.*)', message):
             return "%s" % m.result.group(1)
+        
+        # not white-listed
         elif m.check(r'^com\.mojang\.authlib.*name\=([^,]+).*\(\/([0-9.]+).*lost connection\: You are not white-listed', message):
             return "- Connection from %s rejected (not whitelisted: '%s')"%(m.result.group(2), m.result.group(1))
         
@@ -222,9 +221,13 @@ class Craftoria(callbacks.Plugin):
             else:
                 return False
         
+        # UUID mapping for nicks
+        elif m.check(r'UUID of player (.*) is ([0-9a-zA-Z-]+)', message):
+            self.mcnicks_check_add_nick_on_join(m.result.group(1), m.result.group(2))
+        
         # things to ignore
-        elif m.check(r'UUID of player .* is [0-9a-zA-Z-]+', message) or \
-            m.check(r'.*\[/[0-9\.:]+\] logged in with entity id [0-9]+ at \(.*\)', message):
+        elif m.check(r'.*\[/[0-9\.:]+\] logged in with entity id [0-9]+ at \(.*\)', message) or \
+            m.check(r'.* lost connection:.*', message):
             return False
         
         #Deaths
@@ -273,9 +276,9 @@ class Craftoria(callbacks.Plugin):
         return False
     
     def inFilter(self, irc, msg):
-        return self.filterIRCToMinecraft(msg);
+        return self.filterIRCToRCON(msg);
     
-    def filterIRCToMinecraft(self, content):
+    def filterIRCToRCON(self, content):
         #If it's a private message from an authorized channel, channels are separated by , or ;
         if content.command == 'PRIVMSG' and conf.supybot.plugins.Craftoria.announce.get(content.args[0])():
             if re.search(ur'^[\u0001]ACTION\s?(.*)[\u0001]$', content.args[1], re.UNICODE):
@@ -321,6 +324,81 @@ class Craftoria(callbacks.Plugin):
     # messages between Minecraft and IRC, but instead to provide a simple way
     # for users to find out who on Minecraft is who on IRC and vice versa.
     #
+    def mcnicks_check_data_file(self):
+        # these are needed to make sure the data file is consistent
+        self.mcnicks_version = 2
+        self.mcnicks_version2_data = {"version": 2, "Minecraft": {}, "UUID": {}}
+        self.mcnicks_version2_nick_data = {"preferred": "", "irc_nicks": [], 'last_seen': -1}
+        
+        # Check to see if the Minecraft<->IRC nicks data file exists, creating
+        # it if it doesn't.
+        if not os.path.exists(self.mc_irc_data_file):
+            sys.stdout.write("Creating version 1 Minecraft<->IRC data file")
+            
+            with open(self.mc_irc_data_file, 'a') as f:
+                f.close()
+        
+        # make sure the Minecraft<->IRC nicks data file is in the correct format
+        with open(self.mc_irc_data_file, 'r') as f:
+            data = f.read()
+        
+        try:
+            data = json.loads(data)
+        except ValueError:
+            data = {}
+        
+        # BEGIN VERSION 1 conversion
+        if "version" not in data:
+            sys.stdout.write("Converting Minecraft<->IRC data file to version 2\n")
+            
+            temp_data = self.mcnicks_version2_data
+            
+            for nick in data:
+                sys.stdout.write("Converting Minecraft nick %s to version 2\n" % nick)
+                
+                if nick not in temp_data['Minecraft']:
+                    temp_data['Minecraft'][nick] = self.mcnicks_version2_nick_data
+                
+                temp_data['Minecraft'][nick]['irc_nicks'] = data[nick]
+            
+            data = temp_data
+        # END VERSION 1 conversion
+        
+        data = json.dumps(data)
+            
+        with open(self.mc_irc_data_file, 'w') as f:
+            f.write(data)
+    
+    def mcnicks_check_add_nick_on_join(self, nick, uuid):
+        with open(self.mc_irc_data_file, 'r') as f:
+            data = f.read()
+        
+        data = json.loads(data)
+        
+        if data['version'] == 2:
+            # handle new users connecting
+            if uuid not in data['UUID']:
+                data['UUID'][uuid] = nick
+                
+                if nick not in data['Minecraft']:
+                    data['Minecraft'][nick] = self.mcnicks_version2_nick_data
+            
+            # handle nick changes from the MC side
+            if data['UUID'][uuid] != nick:
+                old_nick = data['UUID'][uuid]
+                data['UUID'][uuid] = nick
+                
+                if nick not in data['Minecraft']:
+                    data['Minecraft'][nick] = data['Minecraft'][old_nick]
+                    del data['Minecraft'][old_nick]
+            
+            data['Minecraft'][nick]['last_seen'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        
+        data = json.dumps(data)
+            
+        with open(self.mc_irc_data_file, 'w') as f:
+            f.write(data)
+    
     def mcnicks(self, irc, msg, args, mc_nick=None):
         """
         Lists all Minecraft nicks, or the given Minecraft nick, and their
@@ -330,26 +408,33 @@ class Craftoria(callbacks.Plugin):
         with open(self.mc_irc_data_file, 'r') as f:
             data = f.read()
         
-        try:
-            data = json.loads(data)
+        data = json.loads(data)
+        
+        if data['version'] == self.mcnicks_version:
+            # build the list of known MC<->IRC nicks
+            nick_list = {}
+            
+            for nick in data['Minecraft']:
+                if len(data['Minecraft'][nick]['irc_nicks']) > 0:
+                    nick_list[nick] = data['Minecraft'][nick]['irc_nicks']
             
             if mc_nick:
-                if mc_nick in data:
+                if mc_nick in nick_list:
                     nicks = []
-                    for nick in data[mc_nick]:
+                    for nick in nick_list[mc_nick]:
                         nicks.append(nick)
                     
                     irc.reply("Minecraft player %s is known by these nicknames on IRC: %s" % (mc_nick, ", ".join(nicks)))
                 else:
                     irc.reply("I do not know who Minecraft player %s is" % mc_nick)
             else:
-                if len(data) != 0:
+                if len(nick_list) > 0:
                     irc.reply("I know the following Minecraft players by the following IRC nicks:")
                     
                     lines = []
-                    for mc_nick in data:
+                    for mc_nick in nick_list:
                         nicks = []
-                        for nick in data[mc_nick]:
+                        for nick in nick_list[mc_nick]:
                             nicks.append(nick)
                         
                         lines.append("%s: %s" % (mc_nick, ", ".join(nicks)))
@@ -368,12 +453,14 @@ class Craftoria(callbacks.Plugin):
                             temp_lines = []
                             temp_lines.append(line)
                     
-                    if len(temp_lines) != 0:
+                    if len(temp_lines) > 0:
                         irc.reply(" | ".join(temp_lines))
                 else:
                     irc.reply("No Minecraft player<->IRC nickname mappings")
-        except ValueError:
-            irc.reply("No Minecraft player<->IRC nickname mappings")
+        else:
+            # this should never be reached, if it is, someone is screwing with
+            # the data file, shame on them
+            irc.reply("Minecraft player<->IRC data file error. Please contact the admins.")
     mcnicks = wrap(mcnicks, [optional('text')])
     
     def mcnickadd(self, irc, msg, args, mc_nick, irc_nick):
@@ -386,35 +473,31 @@ class Craftoria(callbacks.Plugin):
         with open(self.mc_irc_data_file, 'r') as f:
             data = f.read()
         
-        try:
-            data = json.loads(data)
-            
-            if mc_nick in data:
-                if irc_nick not in data[mc_nick]:
-                    data[mc_nick].append(irc_nick)
+        data = json.loads(data)
+        
+        if data['version'] == self.mcnicks_version:
+            if mc_nick in data['Minecraft']:
+                if irc_nick not in data['Minecraft'][mc_nick]['irc_nicks']:
+                    data['Minecraft'][mc_nick]['irc_nicks'].append(irc_nick)
                     irc.reply("Minecraft player %s mapped to IRC nick %s" % (mc_nick, irc_nick))
                 else:
                     irc.reply("I already know Minecraft player %s by IRC nick %s" %(mc_nick, irc_nick))
             else:
                 # the Minecraft nick doesn't exist yet, create it
-                data[mc_nick] = []
-                data[mc_nick].append(irc_nick)
+                data['Minecraft'][mc_nick] = self.mcnicks_version2_nick_data
+                data['Minecraft'][mc_nick]['irc_nicks'].append(irc_nick)
                 
                 irc.reply("Minecraft player %s mapped to IRC nick %s" % (mc_nick, irc_nick))
-        except ValueError:
-            # no current data set, create it
-            data = {}
-            
-            data[mc_nick] = []
-            data[mc_nick].append(irc_nick)
-            
-            irc.reply("Minecraft player %s mapped to IRC nick %s" % (mc_nick, irc_nick))
+        else:
+            # this should never be reached, if it is, someone is screwing with
+            # the data file, shame on them
+            irc.reply("Minecraft player<->IRC data file error. Please contact the admins.")
             
         data = json.dumps(data)
             
         with open(self.mc_irc_data_file, 'w') as f:
             f.write(data)
-    mcnickadd = wrap(mcnickadd, ['admin', 'anything', 'anything'])
+    mcnickadd = wrap(mcnickadd, ['admin', 'something', 'something'])
     
     def mcnickdel(self, irc, msg, args, mc_nick, irc_nick):
         """
@@ -428,24 +511,25 @@ class Craftoria(callbacks.Plugin):
         
         data = json.loads(data)
         
-        if mc_nick in data:
-            if irc_nick in data[mc_nick]:
-                data[mc_nick].remove(irc_nick)
-                irc.reply("I no longer know Minecraft player %s as IRC nick %s" % (mc_nick, irc_nick))
-                
-                if len(data[mc_nick]) == 0:
-                    del data[mc_nick]
-                    irc.reply("I no longer know Minecraft player %s" % mc_nick)
+        if data['version'] == self.mcnicks_version:
+            if mc_nick in data['Minecraft']:
+                if irc_nick in data['Minecraft'][mc_nick]['irc_nicks']:
+                    data['Minecraft'][mc_nick]['irc_nicks'].remove(irc_nick)
+                    irc.reply("I no longer know Minecraft player %s as IRC nick %s" % (mc_nick, irc_nick))
+                else:
+                    irc.reply("I did not know Minecraft player %s as IRC nick %s to being with" % (mc_nick, irc_nick))
             else:
-                irc.reply("I did not know Minecraft player %s as IRC nick %s to being with" % (mc_nick, irc_nick))
+                irc.reply("I do not know who Minecraft player %s is")
         else:
-            irc.reply("I do not know who Minecraft player %s is")
+            # this should never be reached, if it is, someone is screwing with
+            # the data file, shame on them
+            irc.reply("Minecraft player<->IRC data file error. Please contact the admins.")
         
         data = json.dumps(data)
             
         with open(self.mc_irc_data_file, 'w') as f:
             f.write(data)
-    mcnickdel = wrap(mcnickdel, ['admin', 'anything', 'anything'])
+    mcnickdel = wrap(mcnickdel, ['admin', 'something', 'something'])
     
     def mcnickchange(self, irc, msg, args, mc_old, mc_new):
         """
@@ -458,18 +542,28 @@ class Craftoria(callbacks.Plugin):
         
         data = json.loads(data)
         
-        if mc_old in data:
-            data[mc_new] = data[mc_old]
-            del data[mc_old]
-            irc.reply("I now know Minecraft player %s as Minecraft player %s" % (mc_old, mc_new))
+        if data['version'] == self.mcnicks_version:
+            if mc_old in data['Minecraft']:
+                data['Minecraft'][mc_new] = data['Minecraft'][mc_old]
+                del data['Minecraft'][mc_old]
+                
+                for uuid in data['UUID']:
+                    if data['UUID'][uuid] == mc_old:
+                        data['UUID'][uuid] = mc_new
+                
+                irc.reply("I now know Minecraft player %s as Minecraft player %s" % (mc_old, mc_new))
+            else:
+                irc.reply("I do not know who Minecraft player %s is" % mc_old)
         else:
-            irc.reply("I do not know who Minecraft player %s is" % mc_old)
+            # this should never be reached, if it is, someone is screwing with
+            # the data file, shame on them
+            irc.reply("Minecraft player<->IRC data file error. Please contact the admins.")
         
         data = json.dumps(data)
             
         with open(self.mc_irc_data_file, 'w') as f:
             f.write(data)
-    mcnickchange = wrap(mcnickchange, ['admin', 'anything', 'anything'])
+    mcnickchange = wrap(mcnickchange, ['admin', 'something', 'something'])
     # END Minecraft<->IRC nick association
 
 Class = Craftoria
