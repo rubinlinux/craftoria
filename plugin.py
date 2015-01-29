@@ -287,24 +287,41 @@ class Craftoria(callbacks.Plugin):
                 self.formatMinecraftOutput(content.nick, content.args[1])
         return content
 
-    def formatMinecraftActionOutput(self, nick, msg):
-        output = 'say * ' + self.clean(nick) + ' ' + self.clean(re.sub(ur'^[\u0001]ACTION\s?(.*)[\u0001]$', r'\1', msg, re.UNICODE))
+    def formatMinecraftActionOutput(self, nick, action):
+        output = 'say * ' + self.clean(nick) + ' ' + self.clean(re.sub(ur'^[\u0001]ACTION\s?(.*)[\u0001]$', r'\1', action, re.UNICODE))
         self.rcon.send(output)
         #print output
 
-    def formatMinecraftOutput(self, nick, action):
-        output = 'say <' + self.clean(nick) + '> ' + self.clean(action)
+    def formatMinecraftOutput(self, nick, msg):
+        output = 'say <' + self.clean(nick) + '> ' + self.clean(msg)
         self.rcon.send(output)
-        print "DEBUG: Formatted output %s"%output
+        # print "DEBUG: Formatted output %s"%output
 
-    def players(self, irc, msg, args):
+    # BEGIN RCON Commands
+    def cmd(self, irc, msg, args, command):
+        """
+        Passes commands directly to RCON.
         """
 
+        irc.reply(self.rcon.send(command))
+    cmd = wrap(cmd, ['admin', 'text'])
+    
+    def whitelist(self, irc, msg, args, command):
+        """
+        White list related commands.
+        """
+        
+        irc.reply(self.rcon.send("whitelist %s" % command))
+    whitelist = wrap(whitelist, ['admin', optional('text')])
+    
+    def players(self, irc, msg, args):
+        """
         Lists players connected to minecraft server
         """
 
         irc.reply(self.rcon.send("list"))
     players = wrap(players, [])
+    # END RCON Commands
     
     # BEGIN Minecraft<->IRC nick association
     #
