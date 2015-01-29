@@ -1,5 +1,5 @@
 ###
-# Copyright (c) 2012, b42
+# Copyright (c) 2014, 2015, Afternet.org, #minecraft
 # Published under WTFPL.
 #
 ###
