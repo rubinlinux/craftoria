@@ -335,25 +335,41 @@ class Craftoria(callbacks.Plugin):
             
             if mc_nick:
                 if mc_nick in data:
-                    temp = ""
+                    nicks = []
                     for nick in data[mc_nick]:
-                        temp = "%s%s, " % (temp, nick)
+                        nicks.append(nick)
                     
-                    temp = temp.strip(", ")
-                    irc.reply("Minecraft player %s is known by these nicknames on IRC: %s" % (mc_nick, temp))
+                    irc.reply("Minecraft player %s is known by these nicknames on IRC: %s" % (mc_nick, ", ".join(nicks)))
                 else:
                     irc.reply("I do not know who Minecraft player %s is" % mc_nick)
             else:
                 if len(data) != 0:
                     irc.reply("I know the following Minecraft players by the following IRC nicks:")
                     
+                    lines = []
                     for mc_nick in data:
-                        temp = ""
+                        nicks = []
                         for nick in data[mc_nick]:
-                            temp = "%s%s, " % (temp, nick)
+                            nicks.append(nick)
                         
-                        temp = temp.strip(", ")
-                        irc.reply("%s: %s" % (mc_nick, temp))
+                        lines.append("%s: %s" % (mc_nick, ", ".join(nicks)))
+                    
+                    temp_lines = []
+                    temp_len = 0
+                    
+                    temp = ""
+                    for line in lines:
+                        if temp_len + len(line) < 200:
+                            temp_len = temp_len + len(line)
+                            temp_lines.append(line)
+                        else:
+                            irc.reply(" | ".join(temp_lines))
+                            temp_len = len(line)
+                            temp_lines = []
+                            temp_lines.append(line)
+                    
+                    if len(temp_lines) != 0:
+                        irc.reply(" | ".join(temp_lines))
                 else:
                     irc.reply("No Minecraft player<->IRC nickname mappings")
         except ValueError:
