@@ -208,6 +208,8 @@ class Craftoria(callbacks.Plugin):
         # actions (/me)
         elif m.check(r'(\*.*)', message):
             return "%s" % m.result.group(1)
+        
+        # not white-listed
         elif m.check(r'^com\.mojang\.authlib.*name\=([^,]+).*\(\/([0-9.]+).*lost connection\: You are not white-listed', message):
             return "- Connection from %s rejected (not whitelisted: '%s')"%(m.result.group(2), m.result.group(1))
         
