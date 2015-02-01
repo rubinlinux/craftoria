@@ -11,6 +11,7 @@ import SocketServer
 import time
 import datetime
 import json
+import copy
 
 import supybot.conf as conf
 import supybot.ircmsgs as ircmsgs
@@ -350,7 +351,7 @@ class Craftoria(callbacks.Plugin):
         # Check to see if the Minecraft<->IRC nicks data file exists, creating
         # it if it doesn't.
         if not os.path.exists(self.mc_irc_data_file):
-            sys.stdout.write("Creating version 1 Minecraft<->IRC data file")
+            self.log.info("Creating version 1 Minecraft<->IRC data file")
             
             with open(self.mc_irc_data_file, 'a') as f:
                 f.close()
@@ -366,15 +367,15 @@ class Craftoria(callbacks.Plugin):
         
         # BEGIN VERSION 1 conversion
         if "version" not in data:
-            sys.stdout.write("Converting Minecraft<->IRC data file to version 2\n")
+            self.log.info("Converting Minecraft<->IRC data file to version 2\n")
             
             temp_data = self.mcnicks_version2_data
             
             for nick in data:
-                sys.stdout.write("Converting Minecraft nick %s to version 2\n" % nick)
+                self.log.info("Converting Minecraft nick %s to version 2\n" % nick)
                 
                 if nick not in temp_data['Minecraft']:
-                    temp_data['Minecraft'][nick] = self.mcnicks_version2_nick_data
+                    temp_data['Minecraft'][nick] = copy.deepcopy(self.mcnicks_version2_nick_data)
                 
                 temp_data['Minecraft'][nick]['irc_nicks'] = data[nick]
             
@@ -398,7 +399,7 @@ class Craftoria(callbacks.Plugin):
                 data['UUID'][uuid] = nick
                 
                 if nick not in data['Minecraft']:
-                    data['Minecraft'][nick] = self.mcnicks_version2_nick_data
+                    data['Minecraft'][nick] = copy.deepcopy(self.mcnicks_version2_nick_data)
             
             # handle nick changes from the MC side
             if data['UUID'][uuid] != nick:
@@ -486,7 +487,7 @@ class Craftoria(callbacks.Plugin):
         to a single Minecraft nick.
         If the mc_nick does not exist it is added to the list.
         """
-
+        
         with open(self.mc_irc_data_file, 'r') as f:
             data = f.read()
         
@@ -501,7 +502,7 @@ class Craftoria(callbacks.Plugin):
                     irc.reply("I already know Minecraft player %s by IRC nick %s" %(mc_nick, irc_nick))
             else:
                 # the Minecraft nick doesn't exist yet, create it
-                data['Minecraft'][mc_nick] = self.mcnicks_version2_nick_data
+                data['Minecraft'][mc_nick] = copy.deepcopy(self.mcnicks_version2_nick_data)
                 data['Minecraft'][mc_nick]['irc_nicks'].append(irc_nick)
                 
                 irc.reply("Minecraft player %s mapped to IRC nick %s" % (mc_nick, irc_nick))
