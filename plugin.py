@@ -217,7 +217,8 @@ class Craftoria(callbacks.Plugin):
         
         # special actions
         elif m.check(r'\[(.*: Set.*(?:Survival|Creative)+.*)\]', message) or \
-             m.check(r'\[(.*: Teleported.*)\]', message) :
+             m.check(r'\[(.*: Teleported.*)\]', message) or \
+             m.check(r'\[(.*: (?:Added|Removed).*the whitelist)\]', messge):
             if self.special_actions:
                return m.result.group(1)
             else:
