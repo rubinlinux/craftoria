@@ -217,10 +217,12 @@ class Craftoria(callbacks.Plugin):
         
         # special actions
         elif m.check(r'\[(.*: .*)\]', message):
-            if self.special_actions:
-                return m.result.group(1)
-            else:
-                return False
+            return False
+            # This is letting exception strings slip through!
+            #if self.special_actions:
+            #    return m.result.group(1)
+            #else:
+            #    return False
         
         # UUID mapping for nicks
         elif m.check(r'UUID of player (.*) is ([0-9a-zA-Z-]+)', message):
