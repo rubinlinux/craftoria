@@ -216,7 +216,8 @@ class Craftoria(callbacks.Plugin):
             return "- %s"%m.result.group(1)
         
         # special actions
-        elif m.check(r'\[(.*: Set.*(?:Survival|Creative)+.*)\]', message):
+        elif m.check(r'\[(.*: Set.*(?:Survival|Creative)+.*)\]', message) or \
+             m.check(r'\[(.*: Teleported.*)\]', message) :
             if self.special_actions:
                return m.result.group(1)
             else:
