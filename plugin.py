@@ -216,13 +216,11 @@ class Craftoria(callbacks.Plugin):
             return "- %s"%m.result.group(1)
         
         # special actions
-        elif m.check(r'\[(.*: .*)\]', message):
-            return False
-            # This is letting exception strings slip through!
-            #if self.special_actions:
-            #    return m.result.group(1)
-            #else:
-            #    return False
+        elif m.check(r'\[(.*: Set.*(?:Survival|Creative)+.*)\]', message):
+            if self.special_actions:
+               return m.result.group(1)
+            else:
+               return False
         
         # UUID mapping for nicks
         elif m.check(r'UUID of player (.*) is ([0-9a-zA-Z-]+)', message):
