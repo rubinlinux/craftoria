@@ -198,7 +198,7 @@ class Craftoria(callbacks.Plugin):
             return m.result.group(1)
         
         # join part
-        elif m.check(r'(\w+)(?: \(.*\) )*joined the game', message):
+        elif m.check(r'(\w+) (?:\(.*\) )*joined the game', message):
             return "- %s connected"%m.result.group(1)
         elif m.check(r'(\w+) left the game', message):
             return "- %s left"%m.result.group(1)
